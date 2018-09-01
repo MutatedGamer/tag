@@ -1,0 +1,24 @@
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+.ebextensions/
+
+# Pip and stuff
+env/
+
+# C extensions
+*.so
+*.pyc
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+tag/secret_key.txt
