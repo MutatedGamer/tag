@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="icon" href="{% static "favicon.ico" %}">
+		<title>Tag</title>
+		<!-- Bootstrap core CSS and jQuery-->
+		<link rel="stylesheet" href="{% static "css/bootstrap/bootstrap.css" %}">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="{% static "js/bootstrap/bootstrap.min.js" %}"></script>
+		<!-- Font Awesome Icons -->
+		<link href= "{% static "css/fontawesome/fa-svg-with-js.css" %}" rel="stylesheet">
+		<script src="{% static "js/fontawesome/fontawesome-all.js" %}"></script>
+		<!-- Custom CSS -->
+		<link type="text/css" href="{% static "css/main.css" %}" rel="stylesheet" />
+		{% block references %}
+		{% endblock %}
+		<link href="https://fonts.googleapis.com/css?family=Montserrat|Muli" rel="stylesheet"> 
+	</head>
+
+	<body>
+		{% include "main/header.html" %}
+		{% block content %}
+		{% endblock %}
+		<!-- Facebook JS -->
+		<script src="{% static "js/tag_appid.js" %}"></script>
+		<script src="{% static "js/facebook/import_sdk.js" %}"></script>
+		<!-- Custom JS -->
+		<script src="{% static "js/main.js" %}"></script>
+	</body>
+</html>
+
+

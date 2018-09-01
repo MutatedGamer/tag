@@ -1,0 +1,52 @@
+#groups {
+	height:100%;
+}
+
+
+#groups a {
+	padding:10px;
+	color: inherit;
+	text-decoration: none;
+}
+
+.groupTitle {
+	min-width:100%;
+	text-align: center;
+	font-size: 16px;
+}
+
+
+.groupTitle img {
+	width:55px;
+	height:55px;
+	margin-right: 4px;
+}
+
+
+.groupLinks:hover {
+	text-decoration: none;
+}
+
+.groupPosts a, .groupLinks a {
+	padding:10px;
+	transition: background-color 0.1s ease;
+  	background-color: white;
+}
+
+.groupPosts a:hover, .groupLinks a:hover {
+	background-color: #eaeaea;
+}
+
+#groups hr {
+	margin:0px;
+}
+
+.groupPreviewPost {
+	padding: 10px;
+	transition: background-color 0.1s ease;
+  	background-color: white;
+}
+
+.groupTitle {
+	padding:10px;
+}

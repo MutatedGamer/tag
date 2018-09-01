@@ -27,7 +27,7 @@ with open('tag/secret_key.txt') as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['tag-dev.us-east-1.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['tag-dev.us-east-1.elasticbeanstalk.com', '127.0.0.1']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'main.apps.MainConfig',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,46 @@
+#userPosts {
+	height:100%;
+	padding-left:0px;
+	padding-right: 0px;
+}
+
+.removeButton:hover {
+	color:red;
+}
+
+#userPicture {
+	width:20%
+}
+
+
+#userHeader img {
+	width: 100%;
+	justify-content: center;
+}
+
+
+#userName {
+	max-width: 100%;
+    height: 2em;
+    float: right;
+    margin-left: 10px;
+    padding-top:10px;
+    font-size: 400%;
+    white-space: hide;
+}
+
+
+#friendsTable {
+	margin: auto;
+}
+
+
+#friendsTable img {
+	width:50%;
+}
+
+
+#userHeader {
+	display: flex;
+	align-items: center; 
+}

@@ -1,0 +1,20 @@
+#posts {
+	height:100%;
+}
+
+
+.post-comments {
+	font-size: 12px;
+}
+
+.post-comments img {
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	margin-right: 4px;
+}
+
+.groupLink {
+	font-style: normal;
+	background-color: 
+}

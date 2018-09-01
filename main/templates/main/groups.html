@@ -1,0 +1,107 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block references %}
+<link type="text/css" href="{% static 'css/groups.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div id="main" class="container">
+	<div class="row" style="height:100%">
+		<div id="groups" class="col-12 col-sm-8">
+			<div class="box message">
+				It looks like you're not in too many groups... for the best experience, try joining some of the recommended groups or making your own!
+			</div>
+			<div class="box">
+				<div class="groupTitle">
+					<a href="group_page.html">
+					<img src="{% static 'img/headshot.png' %}">
+					MIT Confessions
+					</a>
+				</div>
+				<hr>
+				<div class="groupPosts d-flex flex-column justify-content-center">
+					<a href="http://google.com" style="display: block;">
+						<div>This is a test post that is going to be pretty long. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
+						</div>
+					</a>
+					<hr>
+					<a href="http://google.com" style="display: block;">
+						<div>This is a test post that is going to be pretty long. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
+						</div>
+					</a>
+					<hr>
+					<a href="http://google.com" style="display: block;">
+						<div>This is a test post that is going to be pretty long. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div id="sidebar" class="d-none d-sm-block col-sm-4">
+			<div class="box">
+				<h1> Suggested Groups </h1>
+				<hr>
+				<div class="suggested-item">
+					<a href="group_page.html">
+					<img src="{% static 'img/headshot.png' %}">
+					MIT Confessions
+					</a>
+					<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
+						<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
+					</form>
+				</div>
+			</div>
+			<div class="box">
+				<h1> Quick Links </h1>
+				<hr>
+				<div class="suggested-item">
+					<div class="groupLinks d-flex flex-column justify-content-center">
+						<a href='www.google.com'>
+						Create a group
+						</a>
+						<a href="www.youtube.com">
+						Manage your groups
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Settings Modal -->
+<div class="modal fade" id="settings_overlay" tabindex="-1" role="dialog" aria-labelledby="settingsModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 >Settings</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="exampleInputEmail1">Email address</label>
+						<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+						<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+					</div>
+					<div class="form-group">
+						<label for="exampleInputPassword1">Password</label>
+						<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+					</div>
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="exampleCheck1">
+						<label class="form-check-label" for="exampleCheck1">Check me out</label>
+					</div>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" onclick="saveSettings()" data-dismiss="modal">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
