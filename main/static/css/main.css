@@ -179,3 +179,37 @@ hr {
 	color:black;
 	text-decoration: none;
 }
+
+.login-button {
+  display: inline-block;
+  cursor: pointer;
+  max-height: 35px;
+}
+.login-button:hover {
+  background: rgba(59, 89, 152, .1);
+}
+
+.login-facebook-icon {
+  background-color: #3b5998;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 35px;
+  text-align: center;
+  height: 35px;
+  width: 40px;   
+  float: left;
+}
+
+.login-facebook-text {
+  color: #3b5998;
+  font-family: HelveticaNeueW01-55Roma, HelveticaNeueW02-55Roma, HelveticaNeueW10-55Roma, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 35px;
+  text-align: center;
+  width: 229px;
+  height: 35px;
+  border: 1px solid #3b5998;
+}

@@ -22,3 +22,5 @@ local_settings.py
 db.sqlite3
 
 tag/secret_key.txt
+tag/facebook_appid.txt
+tag/facebook_secret.txt

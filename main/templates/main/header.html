@@ -29,8 +29,40 @@
 						<button class="btn btn-outline-success my-2 my-sm-0 btn-sm" type="submit"><i class="fas fa-search fa-lg"></i></button>
 					</div>
 				</form>
-				<div id="login-area" style="white-space: nowrap">
-				</div>
+				{% if user.is_authenticated %}
+					<div id="login-area" style="white-space: nowrap">
+						<div class="dropdown" style="display: inline-block;">
+							<button type="button" class="btn btn-outline-notifications btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i style="padding-right:5px;" class="fas fa-bell fa-lg"></i><span class="badge badge-pill badge-danger"></span>
+							</button>
+							<div id="notifications" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+								<a class="dropdown-item" href="#">Super duper long notificaiton grdgdtf gfd gfd gdf gfd gfd gdfg dfg fdg fdg fdg fdg </a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#">Another action</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#">Something else here</a>
+							</div>
+						</div>
+						<div class="btn-group" role="group" style="padding-left: 1px; display: inline-block;">
+							<button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#settings_overlay">
+								<i class="fas fa-cog fa-lg"></i>
+							</button>
+							<a id="logout-button" class="btn btn-outline-danger btn-sm" href="{% url 'logout' %}" style="margin-left:-5px">
+								<i class="fa fa-sign-out-alt fa-lg" aria-hidden="true"></i>
+							</a>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				{% else %}
+					<div id="login-area" style="white-space: nowrap">
+						<a href="{% url 'social:begin' 'facebook' %}">
+							<div class="login-button">
+								<div class="login-facebook-icon">f</div>
+								<div class="login-facebook-text">Login with Facebook</div>
+							</div>
+						</a>
+					</div>
+				{% endif %}
 		</nav>
 		</div>
 	</div>
