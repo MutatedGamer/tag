@@ -7,17 +7,48 @@
 
 {% block content %}
 <div id="main" class="container" >
+	{% if messages %}
+	<div class="row">
+		{% for message in messages %}
+		<div class="col-12 {% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</div>
+		{% endfor %}
+	</div>
+	{% endif %}
+
 	<div class="row" style="height:100%">
+		{% if user.is_authenticated %}
 		<div id="posts" class="col-12 col-md-8">
 			<!-- <button class="btn btn-primary" onclick="getFriends()">Find Friends on Tag</button> -->
 			<div id="compose" class="box">
-				<textarea class="form-control autoExpand" id="compose-box" rows="1" placeholder="What's on your mind?"></textarea>
+				<form method="post" action="{% url 'submit-post' %}">
+				 {% csrf_token %}
+					<div class="input-group">
+						<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" placeholder="What's on your mind?" style="resize:none"></textarea>
+						<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
+					</div>
+				</form>
 			</div>
+			{% for post in posts %}
+			<div class="box">
+				<div class="box-header">
+					{% if not post.group.exists %}
+					Your friend posted...
+					{% else %}
+					Someone posted in <a href=''>{{ post.group.name }}</a>
+					{% endif %}
+					<div class="float-right" style="font-size:1.3em;">
+						200 <i class="fas fa-arrow-circle-up fa-lg like-button" onclick="like()" style="margin-left:5px"></i>
+					</div>
+				</div>
+				<hr>
+				{{ post.body }}
+			</div>
+			{% endfor %}
 			<div class="box">
 				Test post, please ignore.
 			</div>
 			<div class="box">
-				<div class="post-header">
+				<div class="box-header">
 					Your friend posted...
 					<div class="float-right" style="font-size:1.3em;">
 						200 <i class="fas fa-arrow-circle-up fa-lg like-button" onclick="like()" style="margin-left:5px"></i>
@@ -37,7 +68,7 @@
 				</div>
 			</div>
 			<div class="box">
-				<div class="post-header">
+				<div class="box-header">
 					Somebody posted in <a class="group-link" href="groups/test_page.html">MIT Confessions</a>...
 				</div>
 				<hr>
@@ -98,48 +129,55 @@
 			</div>
 		</div>
 		<div class="d-none d-sm-block col-md-4" style="padding:0px;">
-			<div id="friendsandgroups">
-				<div id="sidebar">
-					<div class="box">
-						<h1> Suggested Friends </h1>
-						
-						<hr>
-						<div class="suggested-item">
-							<img src="{% static 'img/headshot.png' %}">
-							Luke Bordonaro
-							<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-								<button class="btn btn-outline-success btn-sm" type="submit">Yes</button>
-								<button class="btn btn-outline-danger btn-sm" type="submit">No</button>
-							</form>
-						</div>
-
-						<hr>
-						<div class="suggested-item">
-							<img src="{% static 'img/headshot.png' %}">
-							Luke Bordonaro
-							<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-								<button class="btn btn-outline-success btn-sm" type="submit">Yes</button>
-								<button class="btn btn-outline-danger btn-sm" type="submit">No</button>
-							</form>
-						</div>
+			<div id="sidebar">
+				<div class="box">
+					<h1> Suggested Friends </h1>
+					
+					<hr>
+					<div class="suggested-item">
+						<img src="{% static 'img/headshot.png' %}">
+						Luke Bordonaro
+						<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
+							<button class="btn btn-outline-success btn-sm" type="submit">Yes</button>
+							<button class="btn btn-outline-danger btn-sm" type="submit">No</button>
+						</form>
 					</div>
 
-					<div class="box">
-						<h1> Suggested Groups </h1>
-						
-						<hr>
-						<div class="suggested-item">
-							<img src="{% static 'img/headshot.png' %}">
-							MIT Confessions
-							<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-								<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
-							</form>
-						</div>
+					<hr>
+					<div class="suggested-item">
+						<img src="{% static 'img/headshot.png' %}">
+						Luke Bordonaro
+						<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
+							<button class="btn btn-outline-success btn-sm" type="submit">Yes</button>
+							<button class="btn btn-outline-danger btn-sm" type="submit">No</button>
+						</form>
+					</div>
+				</div>
+
+				<div class="box">
+					<h1> Suggested Groups </h1>
+					
+					<hr>
+					<div class="suggested-item">
+						<img src="{% static 'img/headshot.png' %}">
+						MIT Confessions
+						<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
+							<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
+						</form>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	{% else %}
+	<div class="col-12">
+		<div class="box message">
+			Welcome to tag! Since you're not logged in, you can't see a personalized feed of anonymous posts. You can search for and look at groups without registering, but you cannot add friends or subscribe to groups. 
+
+			To have the best tag@mit experience, please log in with Facebook.
+		</div>
+	</div>
+	{% endif %}
 </div>
 <!-- Settings Modal -->
 <div class="modal fade" id="settings_overlay" tabindex="-1" role="dialog" aria-labelledby="settingsModal" aria-hidden="true">

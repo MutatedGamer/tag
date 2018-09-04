@@ -81,7 +81,7 @@ img {
 	box-shadow: 0px 1px 2px lightgrey, 0px -1px 2px lightgrey;
 }
 
-.boxHeader {
+.box-header {
 	font-style: italic;
 	font-size: 10px;
 }
@@ -212,4 +212,8 @@ hr {
   width: 229px;
   height: 35px;
   border: 1px solid #3b5998;
+}
+
+.form-control:focus {
+	box-shadow: none!important
 }

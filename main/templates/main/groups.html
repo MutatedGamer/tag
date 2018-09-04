@@ -57,7 +57,7 @@
 				<hr>
 				<div class="suggested-item">
 					<div class="groupLinks d-flex flex-column justify-content-center">
-						<a href='www.google.com'>
+						<a href='#create-group' data-toggle="modal">
 						Create a group
 						</a>
 						<a href="www.youtube.com">
@@ -66,6 +66,55 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+</div>
+<!-- Create Group Modal -->
+<div class="modal fade" id="create-group" tabindex="-1" role="dialog" aria-labelledby="createGroupModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 >Create Group</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form method='post'  enctype='multipart/form-data' action="{% url 'create-group' %}">{% csrf_token %}
+				<div class="modal-body">
+					{% if messages %}
+					<div class="form-group row">
+						{% for message in messages %}
+						<div class="col-12 {% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</div>
+						{% endfor %}
+					</div>
+					{% endif %}
+						<div class="form-group row">
+							<label class="col-3 col-form-label" for="group-name">Group Name</label> 
+							<div class="col-9">
+								<input id="id-name" name="name" placeholder="My new awesome group!" type="text" class="form-control here" required="required">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="moderated" class="col-3 col-form-label">Moderated</label> 
+							<div class="col-9">
+								<select id="id-moderated" name="moderated" required="required" class="form-control" aria-describedby="moderatedHelpBlock">
+									<option value="True">Yes</option>
+									<option value="False">No</option>
+								</select>
+								<span id="moderatedHelpBlock" class="form-text text-muted">Moderated groups require posts to be approved by administrators. An un-moderated group cannot be converted to a moderated group.</span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-3 col-form-label" for="photo">Photo</label> 
+							<div class="col-9">
+								<input id="photo" name="photo" type="file" class="form-control here" required="required">
+							</div>
+						</div>
+				</div>
+				<div class="modal-footer">
+					<button name="submit" type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -104,4 +153,16 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function() {
+
+  if(window.location.href.indexOf('#create-group') != -1) {
+    $('#create-group').modal('show');
+  }
+
+});
+</script>
 {% endblock %}

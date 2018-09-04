@@ -16,7 +16,7 @@ class CustomUserAdmin(UserAdmin):
 						'fields': ('username', 'password', 'uuid')
 					}),
 					('Personal info', {
-						'fields': ('first_name', 'last_name', 'email',)
+						'fields': ('first_name', 'last_name', 'email', 'avatar',)
 					}),
 					('Permission', {
 						'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions',)
@@ -24,8 +24,12 @@ class CustomUserAdmin(UserAdmin):
 					('Important dates', {
 						'fields': ('last_login', 'date_joined')
 					}),
+					('Friends', {
+						'fields': ('friends', 'friend_requests_sent',)
+					}),
+
 					('Other', {
-						'fields': ('custom_groups', 'posts',)
+						'fields': ('custom_groups', 'posts_to_show',)
 					}),
 				)
 
