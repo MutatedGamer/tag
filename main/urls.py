@@ -12,6 +12,7 @@ urlpatterns = [
 	path('oath/', include('social_django.urls', namespace='social')),
 	path('groups', views.groups, name='groups'),
 	path('profile', views.profile, name='profile'),
+	path('like', views.like, name='like-post'),
 	path('search/change-group-owner-search', ChangeOwnerSearch.as_view(), name='change-group-owner-search'),
 	path('search/add-admin-search', AddAdminSearch.as_view(), name='add-admin-search'),
 	path('create-group', views.create_group, name='create-group'),

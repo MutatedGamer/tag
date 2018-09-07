@@ -247,9 +247,10 @@ hr {
 */
 
 .like-button {
-	color: light-grey;
+	color: grey;
 }
 
 .like-button:hover {
 	color: green;
 }
+

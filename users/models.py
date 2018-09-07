@@ -9,6 +9,7 @@ class CustomUser(AbstractUser):
 	friends = models.ManyToManyField("self", blank=True)
 	friend_requests_sent = models.ManyToManyField("self", blank=True, symmetrical = False, related_name = 'friend_requests_received')
 	avatar = models.ImageField(upload_to='avatars/', default=None, null=True)
+	liked_posts = models.ManyToManyField('main.Post', symmetrical = False, blank=True, related_name="liked_by")
 
 
 	def __str__(self):

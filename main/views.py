@@ -44,6 +44,7 @@ def index(request):
 	context['page'] = 'home'
 	if request.user and not request.user.is_anonymous:
 		posts = request.user.posts_to_show.all()
+		context['liked_posts'] = request.user.liked_posts.all()
 		for group in request.user.groups_in.all():
 			posts = posts | group.posts.all()
 		context['posts'] = posts.order_by('-added')
@@ -68,6 +69,7 @@ def group(request, group_id):
 	context['group' ] = group
 	context['posts'] = group.posts.all().order_by('-added')
 	context['members'] = group.members.all()
+	context['liked_posts'] = request.user.liked_posts.all()
 	if request.user.is_authenticated:
 		if request.user == group.owner:
 			context['is_owner'] = True
@@ -91,6 +93,30 @@ def submit_post(request, group, post):
 		group.to_approve.remove(post)
 	group.posts.add(post)
 	return
+
+@csrf_protect
+@login_required
+def like(request):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	
+	post = get_object_or_404(Post, pk=int(request.POST['post-id']))
+
+	
+	if post not in request.user.liked_posts.all():
+		request.user.liked_posts.add(post)
+		post.likes = post.likes + 1
+		post.save()
+		result = 'liked'
+	else:
+		request.user.liked_posts.remove(post)
+		post.likes = post.likes - 1
+		post.save()
+		result = 'disliked'
+	
+	return JsonResponse({'result': result, 'new_count':post.likes})
+
+
 
 @csrf_protect
 @login_required

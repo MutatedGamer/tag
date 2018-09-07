@@ -43,9 +43,11 @@
 			<div class="box">
 				<div class="box-header">
 					Someone posted...
-					<div class="float-right" style="font-size:1.3em;">
-					{{ post.likes }}	<i class="fas fa-arrow-circle-up fa-lg like-button" onclick="like()" style="margin-left:5px"></i>
-					</div>
+					{% if user.is_authenticated and is_member %}
+						<div class="float-right" style="font-size:1.3em;">
+						<span id="post-{{ post.pk }}">{{ post.likes }}</span><i id='like-button-{{ post.pk }}' class="fas fa-arrow-circle-up fa-lg like-button" onclick="like('{{ post.pk }}')" style="margin-left:5px; {% if post in liked_posts %}color: green; {% endif %}"></i>
+						</div>
+					{% endif %}
 				</div>
 				<hr>
 				{{ post.body }}
@@ -203,6 +205,39 @@
 {% if is_owner %}
 <script src="{% static 'js/csrftoken.js' %}"></script>
 <script>
+function like(pk) {
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	// send ajax
+	$.ajax({
+		beforeSend: function(xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			},
+		url: '{% url "like-post" %}', // url where to submit the request
+		type : "POST", // type of action POST || GET
+		dataType : 'json', // data type
+		data : { 'post-id': pk },
+		success : function(result) {
+			console.log(result);
+			if (result['result'] == 'liked') {
+				$('#like-button-' + pk).css('color', 'green');
+				$('#like-button-' + pk).addClass('liked');
+				$('#post-' + pk).text(result['new_count'])
+			}
+			else {
+				$('#like-button-' + pk).css('color', 'grey');
+				$('#post-' + pk).text(result['new_count'])
+			};
+		},
+	});
+	
+
+};
+
 function makeAdmin(pk) {
 	function csrfSafeMethod(method) {
 		// these HTTP methods do not require CSRF protection
