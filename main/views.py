@@ -186,6 +186,48 @@ def change_group_owner(request, group_id):
 
 @csrf_protect
 @login_required
+def add_admin(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	if int(request.POST['group']) != group_id:
+		return HttpResponseRedirect(reverse('index'))
+
+	group = get_object_or_404(CustomGroup, pk=group_id)
+
+	if request.user != group.owner:
+		messages.error(request, 'Only the owner can modify admins.')
+		return HttpResponseRedirect(reverse('index'))
+	
+	new_admin = get_object_or_404(CustomUser, pk=int(request.POST['user-id']))
+	if new_admin not in group.admins.all():
+		group.admins.add(new_admin)
+	group.save()
+
+	return JsonResponse({'success': True})
+
+@csrf_protect
+@login_required
+def remove_admin(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	if int(request.POST['group']) != group_id:
+		return HttpResponseRedirect(reverse('index'))
+
+	group = get_object_or_404(CustomGroup, pk=group_id)
+
+	if request.user != group.owner:
+		messages.error(request, 'Only the owner can modify admins.')
+		return HttpResponseRedirect(reverse('index'))
+	
+	to_remove = get_object_or_404(CustomUser, pk=int(request.POST['user-id']))
+	if to_remove in group.admins.all():
+		group.admins.remove(to_remove)
+	group.save()
+
+	return JsonResponse({'success': True})
+
+@csrf_protect
+@login_required
 def delete_group(request, group_id):
 	if request.method != 'POST':
 		return HttpResponseRedirect(reverse('index'))

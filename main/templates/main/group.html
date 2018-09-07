@@ -19,9 +19,11 @@
 	<div class="row" style="height: 100%">
 		<div id="posts" class="col-12 {% if user.is_authenticated and not user.is_anonymous %} col-md-8 {% endif %}">
 			<div class="box">
-				<div class="groupTitle">
+				<div class="groupTitle" style="text-align:center;">
 						<img src="{{ group.photo.url }}">
 						{{ group.name }}
+						<hr>
+						<span style="font-size:12px">{{ members.count }} member{% if members.count > 1 %}s{% endif %}</span>
 				</div>
 			</div>
 
@@ -114,7 +116,7 @@
 				<form id="change-owner-search-form" role="form" method="post">
 					<input type="hidden" name="group-id" value="{{ group.pk }}" />
 					<div class="form-group">
-						<input type="search" class="form-control" id="change-owner-search" name="search" placeholder="Filter members" ic-post-to="{% url 'change-group-owner-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup changed" ic-trigger-delay="200ms" ic-target="#change-owner-search-result-container" />
+						<input type="search" class="form-control" id="change-owner-search" name="search" placeholder="Filter members" ic-post-to="{% url 'change-group-owner-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#change-owner-search-result-container" />
 					</div>
 				</form>
 				<table class="table table-striped" style="width:100%">
@@ -132,7 +134,7 @@
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 >Add Admin</h5>
+				<h5 >Modify Admins</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 				</button>
@@ -141,7 +143,7 @@
 				<form id="add-admin-search-form" role="form" method="post">
 					<input type="hidden" name="group-id" value="{{ group.pk }}" />
 					<div class="form-group">
-						<input type="search" class="form-control" id="add-admin-search" name="search" placeholder="Filter members" ic-post-to="{% url 'add-admin-search' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="1s" ic-poll-repeats="1" ic-trigger-on="keyup changed" ic-trigger-delay="200ms" ic-target="#search-result-container" />
+						<input type="search" class="form-control" id="add-admin-search" name="search" placeholder="Filter members" ic-post-to="{% url 'add-admin-search' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="1s" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#search-result-container" />
 					</div>
 				</form>
 				<table class="table table-striped" style="width:100%">
@@ -201,6 +203,61 @@
 {% if is_owner %}
 <script src="{% static 'js/csrftoken.js' %}"></script>
 <script>
+function makeAdmin(pk) {
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	// send ajax
+	$.ajax({
+		beforeSend: function(xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			},
+		url: '{% url "add-admin" group.pk %}', // url where to submit the request
+		type : "POST", // type of action POST || GET
+		dataType : 'json', // data type
+		data : { 'user-id': pk, 'group': {{ group.pk }} },
+		success : function(result) {
+			console.log(result);
+			if (result['success']) {
+				$('#add-admin-search').trigger('keyup');
+			}
+		},
+	});
+	
+};
+
+function removeAdmin(pk) {
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	// send ajax
+	$.ajax({
+		beforeSend: function(xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			},
+		url: '{% url "remove-admin" group.pk %}', // url where to submit the request
+		type : "POST", // type of action POST || GET
+		dataType : 'json', // data type
+		data : { 'user-id': pk, 'group': {{ group.pk }} },
+		success : function(result) {
+			console.log(result);
+			if (result['success']) {
+				$('#add-admin-search').trigger('keyup');
+			}
+		},
+	});
+	
+};
+
+
+
+
 function changeOwner(pk) {
 	var r = confirm('Are you sure you want to change the owner of the group to this person? This action cannot be undone.');
 	if (r==true) {
@@ -232,7 +289,7 @@ function changeOwner(pk) {
 
 $('#delete-group').click( function(e) {
 	e.preventDefault();
-	var r = confirm('Are you sure you want to delete the group {{ group.name }}?\nThis action cannot be reversed, and all posts in the group will be lost forever.');
+	var r = confirm("Are you sure you want to delete the group {{ group.name|safe }}?\nThis action cannot be reversed, and all posts in the group will be lost forever.");
 	if (r==true) {
 		var r = confirm('If you click "OK" then {{ group.name }} and all of its posts will forever be gone. Are you sure you want to do this?');
 		if (r==true) {
