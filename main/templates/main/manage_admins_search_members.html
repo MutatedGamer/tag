@@ -1,0 +1,16 @@
+{% if members %}
+	<table class="table table-striped">
+		{% for member in members %}
+		</ul>
+		<tr>
+			<td style="min-width: 50px"><img src="{{ member.avatar.url }}" width="100%"></td>
+			<td style="width: 75%">{{ member.first_name }} {{ member.last_name }}</td>
+			{% if member not in admins %}
+			<td style="width: 10%"><button type="button" onclick="makeAdmin('{{ member.pk }}')" class="btn btn-primary" user-id="{{ member.pk }}">Make Admin</button>
+			{% else %}
+			<td style="width: 10%"><button type="button" onclick="removeAdmin('{{ member.pk }}')" class="btn btn-danger" user-id="{{ member.pk }}">Remove Admin</button>
+			{% endif %}
+		</tr>
+		{% endfor %}
+	</table>
+{% endif %}

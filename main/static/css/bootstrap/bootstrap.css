@@ -4923,7 +4923,7 @@ input[type="button"].btn-block {
 
 .alert-primary {
   color: #004085;
-  background-color: #cce5ff;
+  background-color: #cce5ff !important;
   border-color: #b8daff;
 }
 
@@ -4937,7 +4937,7 @@ input[type="button"].btn-block {
 
 .alert-secondary {
   color: #383d41;
-  background-color: #e2e3e5;
+  background-color: #e2e3e5 !important;
   border-color: #d6d8db;
 }
 
@@ -4951,7 +4951,7 @@ input[type="button"].btn-block {
 
 .alert-success {
   color: #155724;
-  background-color: #d4edda;
+  background-color: #d4edda !important;
   border-color: #c3e6cb;
 }
 
@@ -4965,7 +4965,7 @@ input[type="button"].btn-block {
 
 .alert-info {
   color: #0c5460;
-  background-color: #d1ecf1;
+  background-color: #d1ecf1 !important;
   border-color: #bee5eb;
 }
 
@@ -4979,7 +4979,7 @@ input[type="button"].btn-block {
 
 .alert-warning {
   color: #856404;
-  background-color: #fff3cd;
+  background-color: #fff3cd !important;
   border-color: #ffeeba;
 }
 
@@ -4993,7 +4993,7 @@ input[type="button"].btn-block {
 
 .alert-danger {
   color: #721c24;
-  background-color: #f8d7da;
+  background-color: #f8d7da !important;
   border-color: #f5c6cb;
 }
 
@@ -5007,7 +5007,7 @@ input[type="button"].btn-block {
 
 .alert-light {
   color: #818182;
-  background-color: #fefefe;
+  background-color: #fefefe !important;
   border-color: #fdfdfe;
 }
 
@@ -5021,7 +5021,7 @@ input[type="button"].btn-block {
 
 .alert-dark {
   color: #1b1e21;
-  background-color: #d6d8d9;
+  background-color: #d6d8d9 !important;
   border-color: #c6c8ca;
 }
 

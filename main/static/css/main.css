@@ -15,6 +15,9 @@ img {
 	margin-top:42px;
 }
 
+#main>*>* {
+	padding: 0px;
+}
 
 #header {
 	background-color: #FFFFFF;
@@ -115,6 +118,7 @@ hr {
 .box h1 {
 	font-size: 16px;
 	text-align: center;
+	margin-bottom: 0px;
 }
 
 
@@ -216,4 +220,28 @@ hr {
 
 .form-control:focus {
 	box-shadow: none!important
+
 }
+
+.box-title h1 {
+	font-size: 24px;
+	text-align: center;
+	padding-bottom: 0px;
+}
+
+/*
+.table {
+	display: table;
+}
+
+.table>* {
+	display: table-row;
+	padding: 5px;
+}
+
+.table>*>* {
+	display: table-cell;
+	padding: 5px;
+	border: 0.1px solid gray;
+}
+*/

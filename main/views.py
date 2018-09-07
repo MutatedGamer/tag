@@ -7,22 +7,225 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 import bleach
 from main.forms import CustomGroupForm
+from django.http import JsonResponse
+from django.views import View
+from django.template import loader
+from django.db.models import Q
+from django.db.models.functions import Concat
+from django.db.models import Value
 
 # Create your views here.
+
+class ChangeOwnerSearch(View):
+	template = 'main/change_owner_search_members.html'
+
+	def post(self, request):
+		template = loader.get_template(self.template)
+		print(request.POST)
+		query = request.POST.get('search', None)
+		group = get_object_or_404(CustomGroup, pk=int(request.POST.get('group-id')))
+
+		items= group.members.exclude(pk=group.owner.pk).annotate(full_name=Concat('first_name', Value(' '), 'last_name'))
+		if query:
+			items = items.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(full_name__icontains=query))
+
+		context = {'query': query, 'members': items, 'admins': group.admins.all()}
+
+		rendered_template = template.render(context, request)
+		return HttpResponse(rendered_template, content_type='text/html')
+
+class AddAdminSearch(ChangeOwnerSearch):
+	template = 'main/manage_admins_search_members.html'
+
 
 @csrf_protect
 def index(request):
 	context = dict()
 	context['page'] = 'home'
 	if request.user and not request.user.is_anonymous:
-		context['posts'] = request.user.posts_to_show.all()
+		posts = request.user.posts_to_show.all()
+		for group in request.user.groups_in.all():
+			posts = posts | group.posts.all()
+		context['posts'] = posts.order_by('-added')
 	return render(request, 'main/index.html', context)
 
 @csrf_protect
 def groups(request):
 	context = dict()
 	context['page'] = 'groups'
+	if request.user.is_authenticated:
+		context['groups_in'] = request.user.groups_in.all()
+		context['groups'] = CustomGroup.objects.all().difference(context['groups_in']).order_by('-last_activity_date')
+	else:
+		context['groups'] = CustomGroup.objects.all().order_by('-last_activity_date')
 	return render(request, 'main/groups.html', context)
+
+@csrf_protect
+def group(request, group_id):
+	context = dict()
+	context['page'] = 'groups'
+	group = get_object_or_404(CustomGroup, pk=group_id)
+	context['group' ] = group
+	context['posts'] = group.posts.all().order_by('-added')
+	context['members'] = group.members.all()
+	if request.user.is_authenticated:
+		if request.user == group.owner:
+			context['is_owner'] = True
+		else:
+			context['is_owner'] = False
+		
+		if request.user in group.admins.all():
+			context['is_admin'] = True
+		else:
+			context['is_admin'] = False
+
+		if request.user in group.members.all():
+			context['is_member'] = True
+		else:
+			context['is_member'] = False
+
+	return render(request, 'main/group.html', context)
+
+def submit_post(request, group, post):
+	if post in group.to_approve.all():
+		group.to_approve.remove(post)
+	group.posts.add(post)
+	return
+
+@csrf_protect
+@login_required
+def submit_post_to_group(request, group_id):
+	if request.method == 'POST':
+		group = get_object_or_404(CustomGroup, pk=group_id)
+		if group.pk != int(request.POST['group_id']):
+			messages.error(request, 'Something went wrong')
+			return HttpResponseRedirect(reverse('index'))
+
+		if request.user not in group.members.all():
+			messages.error(request, "You cannot post in groups you are not a part of.")
+			return HttpResponseRedirect(reverse('index'))
+
+		post = Post(body = bleach.clean(request.POST['body']), group=group)
+		post.save()
+		
+		if group.moderated:
+			group.to_approve.add(post)
+			group.save()
+			messages.success(request, "Your post was submitted to be approved!")
+			return HttpResponseRedirect(reverse('group', args=(group.pk,)))
+		else:
+			group.posts.add(post)
+			group.save()
+			messages.success(request, "Your post was submitted successfully!")
+			return HttpResponseRedirect(reverse('group', args=(group.pk,)))
+
+@csrf_protect	
+@login_required
+def approve_posts(request, group_id):
+	group = get_object_or_404(CustomGroup, pk=group_id)
+	context = dict()
+	context['page'] = 'groups'
+	if not request.user in group.admins.all():
+		messages.error(request, "Only admins can approve posts.")
+		return HttpResponseRedirect(reverse('index'))
+	
+	context = dict()
+	context['group'] = group
+	context['posts'] = group.to_approve.all()
+	return render(request, 'main/approve.html', context)
+
+@csrf_protect
+@login_required
+def approve_posts_response(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+
+	group = get_object_or_404(CustomGroup, pk=group_id)
+	if not request.user in group.admins.all():
+		messages.error(request, "Only admins can approve posts.")
+		return HttpResponseRedirect(reverse('index'))
+
+	post = get_object_or_404(Post, pk=int(request.POST['post-id']))
+	if post not in group.to_approve.all():
+		messages.error(request, "Post not found.")
+		return HttpResponseRedirect(reverse('index'))
+
+	if 'approve' in request.POST:
+		group.to_approve.remove(post)
+		group.posts.add(post)
+		group.save()
+		response = {'result': 'approved'}
+	elif 'remove' in request.POST:
+		group.to_approve.remove(post)
+		group.save()
+		response = {'result': 'deleted'}
+	
+	return JsonResponse(response)
+
+@csrf_protect
+@login_required
+def change_group_owner(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	if int(request.POST['group']) != group_id:
+		return HttpResponseRedirect(reverse('index'))
+
+	group = get_object_or_404(CustomGroup, pk=group_id)
+
+	if request.user != group.owner:
+		messages.error(request, 'Only the owner can change the owner.')
+		return HttpResponseRedirect(reverse('index'))
+	
+	new_owner = get_object_or_404(CustomUser, pk=int(request.POST['user-id']))
+	group.owner = new_owner
+	if new_owner not in group.admins.all():
+		group.admins.add(new_owner)
+	group.save()
+
+	return JsonResponse({'success': True})
+
+@csrf_protect
+@login_required
+def delete_group(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	if int(request.POST['group']) != group_id:
+		return HttpResponseRedirect(reverse('index'))
+
+	group = get_object_or_404(CustomGroup, pk=group_id)
+
+	if request.user != group.owner:
+		messages.error(request, 'Only the owner can remove a group.')
+		return HttpResponseRedirect(reverse('index'))
+
+	group.delete()
+
+	return JsonResponse({'success': True})
+
+
+		
+
+@login_required
+def join_group(request, group_id):
+	group = get_object_or_404(CustomGroup, pk=group_id)
+	if request.user.is_authenticated and request.user not in group.members.all():
+		group.members.add(request.user)
+	
+	return HttpResponseRedirect(reverse('group', args=(group.pk,)))
+
+@login_required
+def leave_group(request, group_id):
+	group = get_object_or_404(CustomGroup, pk=group_id)
+	if request.user == group.owner:
+		messages.error(request, 'You cannot leave a group you are the owner of.')
+		return HttpResponseRedirect(reverse('group', args=(group.pk,)))
+	if request.user.is_authenticated and request.user in group.members.all():
+		group.members.remove(request.user)
+		if request.user in group.admins.all():
+			group.admins.remove(request.user)
+		group.save()
+	
+	return HttpResponseRedirect(reverse('group', args=(group.pk,)))
 
 def profile(request):
 	context = dict()
@@ -39,16 +242,16 @@ def create_group(request):
 			messages.error(request, "A group with that name already exists. Sorry!")
 			return HttpResponseRedirect(reverse('groups') + '#create-group')
 		else:
-			print(request.POST)
 			group_form = CustomGroupForm(request.POST, request.FILES)
 			# group = CustomGroup(name=group_name, owner=request.user)
-			if group.is_valid():
+			if group_form.is_valid():
 				group = group_form.save(commit = False)
 				group.owner = request.user
 				group.save()
 				group.admins.add(request.user)
+				group.members.add(request.user)
 				group.save()
-				return HttpResponseRedirect(reverse('groups'))
+				return HttpResponseRedirect(reverse('group', args=(group.pk,)))
 			else:
 				messages.error(request, "Form wasn't valid!")
 				return HttpResponseRedirect(reverse('groups') + '#create-group')

@@ -1,0 +1,12 @@
+{% if members %}
+	<table class="table table-striped">
+		{% for member in members %}
+		</ul>
+		<tr>
+			<td style="min-width: 50px"><img src="{{ member.avatar.url }}" width="100%"></td>
+			<td style="width: 75%">{{ member.first_name }} {{ member.last_name }}</td>
+			<td style="width: 10%"><button type="button" onclick="changeOwner('{{ member.pk }}')" class="btn btn-primary" user-id="{{ member.pk }}">Make Owner</button>
+		</tr>
+		{% endfor %}
+	</table>
+{% endif %}

@@ -7,11 +7,51 @@
 
 {% block content %}
 <div id="main" class="container">
+	{% if messages %}
+	<div class="row">
+		{% for message in messages %}
+		<div class="col-12"><div class="box message {% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</div></div>
+		{% endfor %}
+	</div>
+	{% endif %}
+
 	<div class="row" style="height:100%">
 		<div id="groups" class="col-12 col-sm-8">
-			<div class="box message">
-				It looks like you're not in too many groups... for the best experience, try joining some of the recommended groups or making your own!
+			{% if user.is_authenticated %}
+				{% if groups_in.count == 0 %}
+					<div class="box message">
+					It looks like you're not in any groups... for the best experience, try joining some of the recommended groups below or making your own!
+					</div>
+				{% else %}
+					<div class="box box-title">
+						<h1>Your Groups</h1>
+					</div>
+					{% for group in groups_in %}
+					<div class="box">
+						<div class="groupTitle">
+							<a href="{% url 'group' group.pk %}">
+								<img src="{{ group.photo.url }}">
+								{{ group.name }}
+							</a>
+						</div>
+					</div>
+					{% endfor %}
+				{% endif %}
+			{% endif %}
+			<div class="box box-title">
+				<h1>Browse Groups</h1>
 			</div>
+
+			{% for group in groups %}
+			<div class="box">
+				<div class="groupTitle">
+					<a href="{% url 'group' group.pk %}">
+						<img src="{{ group.photo.url }}">
+						{{ group.name }}
+					</a>
+				</div>
+			</div>
+			{% endfor %}
 			<div class="box">
 				<div class="groupTitle">
 					<a href="group_page.html">
