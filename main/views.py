@@ -13,15 +13,20 @@ from django.template import loader
 from django.db.models import Q
 from django.db.models.functions import Concat
 from django.db.models import Value
+from datetime import datetime
+from django.utils.decorators import method_decorator
+import requests
+import json
+
 
 # Create your views here.
 
 class ChangeOwnerSearch(View):
 	template = 'main/change_owner_search_members.html'
 
+	@method_decorator(login_required)
 	def post(self, request):
 		template = loader.get_template(self.template)
-		print(request.POST)
 		query = request.POST.get('search', None)
 		group = get_object_or_404(CustomGroup, pk=int(request.POST.get('group-id')))
 
@@ -34,8 +39,102 @@ class ChangeOwnerSearch(View):
 		rendered_template = template.render(context, request)
 		return HttpResponse(rendered_template, content_type='text/html')
 
+class InviteMemberSearch(View):
+	template = 'main/search_invite_member.html'
+
+	@method_decorator(login_required)
+	def post(self, request):
+		template = loader.get_template(self.template)
+		query = request.POST.get('search', None)
+		group = get_object_or_404(CustomGroup, pk=int(request.POST.get('group-id')))
+
+		items= request.user.friends.annotate(full_name=Concat('first_name', Value(' '), 'last_name'))
+		if query:
+			items = items.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(full_name__icontains=query))
+		items = items.difference(group.members.annotate(full_name=Concat('first_name', Value(' '), 'last_name')).all())
+
+		context = {'friends': items}
+
+		rendered_template = template.render(context, request)
+		return HttpResponse(rendered_template, content_type='text/html')
+
+
 class AddAdminSearch(ChangeOwnerSearch):
 	template = 'main/manage_admins_search_members.html'
+
+class GetNotifications(View):
+	template = 'main/get_notifications.html'
+
+	@method_decorator(login_required)
+	def post(self, request):
+		template = loader.get_template(self.template)
+		items = request.user.notifications.all()
+		context = {'items': items}
+
+		rendered_template = template.render(context, request)
+		return HttpResponse(rendered_template, content_type='text/html')
+
+class TagFriends(View):
+	template = 'main/search_tag_friends.html'
+
+	@method_decorator(login_required)
+	def post(self, request):
+		template = loader.get_template(self.template)
+		post = get_object_or_404(Post, pk=int(request.POST['post-id']))
+		items= request.user.friends.annotate(full_name=Concat('first_name', Value(' '), 'last_name'))
+		query = request.POST.get('search', None)
+		if query:
+			items = items.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(full_name__icontains=query))
+		items = items.difference(post.tag.annotate(full_name=Concat('first_name', Value(' '), 'last_name')).all())
+		context = {'friends': items, 'post': post}
+
+		rendered_template = template.render(context, request)
+		return HttpResponse(rendered_template, content_type='text/html')
+
+@csrf_protect
+@login_required
+def tag(request):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	
+	post = get_object_or_404(Post, pk=int(request.POST['post-id']))
+	tagged_friend = get_object_or_404(CustomUser, pk=int(request.POST['friend-pk']))
+
+	# Tag friend if not already tagged
+	if tagged_friend not in post.tag.all():
+		post.tag.add(tagged_friend)
+		post.save()
+	else:
+		messages.error(request, 'User is already tagged')
+		return HttpResponseRedirect(reverse('index'))
+	
+	# Create notification
+	notification = Notification(sender = request.user, receiver = tagged_friend, action = 'tagged', for_post = post)
+	notification.save()
+	return JsonResponse({'success': True})
+
+
+@csrf_protect
+@login_required
+def invite_member(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	
+	group = get_object_or_404(CustomGroup, pk=group_id)
+	invited_user = get_object_or_404(CustomUser, pk=int(request.POST['friend-pk']))
+
+	if request.user not in group.members.all():
+		return HttpResponseRedirect(reverse('index'))
+
+	# Tag friend if not already tagged
+	if invited_user not in group.members.all():
+		notification, created = Notification.objects.get_or_create(sender = request.user, receiver = invited_user, action="invited", for_group = group)
+		notification.save()
+	else:
+		messages.error(request, 'User is already in group')
+		return HttpResponseRedirect(reverse('index'))
+	
+	return JsonResponse({'success': True})
 
 
 @csrf_protect
@@ -48,7 +147,32 @@ def index(request):
 		for group in request.user.groups_in.all():
 			posts = posts | group.posts.all()
 		context['posts'] = posts.order_by('-added')
+		social_user = request.user.social_auth.filter(provider = 'facebook').first()
+		if social_user:
+			url = u'https://graph.facebook.com/{0}/friends?fields=id,name&access_token={1}'.format(social_user.uid, social_user.extra_data['access_token'],)
+			content = requests.get(url)
+			friends = json.loads(content.content.decode('utf-8'))['data']
+			context['suggested_friends'] = []
+
+			for friend in friends:
+				found_friend = CustomUser.objects.get(uuid=friend['id'])
+				if found_friend not in request.user.friends.all() and found_friend not in request.user.friend_requests_sent.all() and found_friend not in request.user.friend_requests_received.all():
+					context['suggested_friends'] += [found_friend]
+
+		# Get suggested groups
+		context['suggested_groups'] = request.user.groups_in.all() 
+		for friend in request.user.friends.all():
+			context['suggested_groups'] = context['suggested_groups'] | friend.groups_in.all()
+		context['suggested_groups'] = context['suggested_groups'].difference(request.user.groups_in.all())
 	return render(request, 'main/index.html', context)
+
+def post(request, post_id):
+	context = dict()
+	context['page'] = 'groups'
+	post = Post.objects.filter(pk=post_id)
+	context['posts'] = post
+
+	return render(request, 'main/post.html', context)
 
 @csrf_protect
 def groups(request):
@@ -57,6 +181,12 @@ def groups(request):
 	if request.user.is_authenticated:
 		context['groups_in'] = request.user.groups_in.all()
 		context['groups'] = CustomGroup.objects.all().difference(context['groups_in']).order_by('-last_activity_date')
+		# Get suggested groups
+		context['suggested_groups'] = request.user.groups_in.all() 
+		for friend in request.user.friends.all():
+			context['suggested_groups'] = context['suggested_groups'] | friend.groups_in.all()
+		context['suggested_groups'] = context['suggested_groups'].difference(request.user.groups_in.all())
+
 	else:
 		context['groups'] = CustomGroup.objects.all().order_by('-last_activity_date')
 	return render(request, 'main/groups.html', context)
@@ -138,6 +268,18 @@ def submit_post_to_group(request, group_id):
 			group.to_approve.add(post)
 			group.save()
 			messages.success(request, "Your post was submitted to be approved!")
+			# create notification for all admins
+			for admin in group.admins.all():
+				notification, created  = Notification.objects.get_or_create(
+					for_group = group,
+					receiver = admin,
+					action = 'posts_to_approve',
+				)
+				if not created:
+					notification.read = False
+					notification.creation_date = datetime.now()
+					notification.save()
+
 			return HttpResponseRedirect(reverse('group', args=(group.pk,)))
 		else:
 			group.posts.add(post)
@@ -154,7 +296,10 @@ def approve_posts(request, group_id):
 	if not request.user in group.admins.all():
 		messages.error(request, "Only admins can approve posts.")
 		return HttpResponseRedirect(reverse('index'))
-	
+	# Set notificaiton to read
+	notification = Notification.objects.get(for_group = group, receiver = request.user, action="posts_to_approve")
+	notification.read = True
+	notification.save()
 	context = dict()
 	context['group'] = group
 	context['posts'] = group.to_approve.all()
@@ -270,6 +415,31 @@ def delete_group(request, group_id):
 
 	return JsonResponse({'success': True})
 
+@csrf_protect
+@login_required
+def make_group_unmoderated(request, group_id):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	if int(request.POST['group']) != group_id:
+		return HttpResponseRedirect(reverse('index'))
+
+	group = get_object_or_404(CustomGroup, pk=group_id)
+
+	if request.user != group.owner:
+		messages.error(request, 'Only the owner can make the group unmoderated.')
+		return HttpResponseRedirect(reverse('index'))
+
+	group.moderated = False
+	for post in group.to_approve.all():
+		group.to_approve.remove(post)
+		group.posts.add(post)
+	group.save()
+
+	Notification.objects.get(for_group=group).delete()
+
+	return JsonResponse({'success': True})
+
+
 
 		
 
@@ -328,6 +498,7 @@ def create_group(request):
 def user_profile(request, user_id):
 	userProfile = get_object_or_404(CustomUser, pk=user_id)
 	context = dict()
+	context['page'] = 'profile'
 
 	if userProfile in request.user.friends.all():
 		context['is_friend'] = True
@@ -353,16 +524,45 @@ def user_profile(request, user_id):
 
 @csrf_protect
 @login_required
-def send_request(request, user_id):
+def send_friend_request(request, user_id):
+	# The user receiving the friend request
 	userProfile = get_object_or_404(CustomUser, pk=user_id)
+	if userProfile in request.user.friend_requests_sent.all():
+		messages.error('Something went wrong')
+		return HttpResponseRedirect(reverse('index'))
+	# Add to the logged in user's list of friend requests sent.
+	# Automatically adds logged in user to list of friend requests received
+	# for userProfile
 	request.user.friend_requests_sent.add(userProfile)
+	
+	# Create a new notification for userProfile
+	friend_request_notification = Notification(sender=request.user, receiver=userProfile, action='friend_request_received')
+	friend_request_notification.save()
 
 	return HttpResponseRedirect(reverse('user-profile', args=(userProfile.pk,)))
 
 @csrf_protect
 @login_required
-def respond_request(request, user_id):
+def remove_friend(request, user_id):
 	userProfile = get_object_or_404(CustomUser, pk=user_id)
+
+	if userProfile not in request.user.friends.all():
+		messages.error('Friend not found')
+		return HttpResponseRedirect(reverse('index'))
+	
+	request.user.friends.remove(userProfile)
+	request.user.save()
+
+	return HttpResponseRedirect(reverse('user-profile', args=(userProfile.pk,)))
+
+@csrf_protect
+@login_required
+def respond_to_friend_request(request, user_id):
+	userProfile = get_object_or_404(CustomUser, pk=user_id)
+
+	# Remove notification
+	notification = Notification.objects.get(receiver=request.user, sender=userProfile, action="friend_request_received")
+	notification.delete()
 	
 	# Check if userProfile added request.user
 	if userProfile not in request.user.friend_requests_received.all():

@@ -39,20 +39,7 @@
 				</form>
 			</div>
 			{% endif %}
-			{% for post in posts %}
-			<div class="box">
-				<div class="box-header">
-					Someone posted...
-					{% if user.is_authenticated and is_member %}
-						<div class="float-right" style="font-size:1.3em;">
-						<span id="post-{{ post.pk }}">{{ post.likes }}</span><i id='like-button-{{ post.pk }}' class="fas fa-arrow-circle-up fa-lg like-button" onclick="like('{{ post.pk }}')" style="margin-left:5px; {% if post in liked_posts %}color: green; {% endif %}"></i>
-						</div>
-					{% endif %}
-				</div>
-				<hr>
-				{{ post.body }}
-			</div>
-			{% endfor %}
+			{% include 'main/modules/posts.html' %}	
 		</div>
 		{% if user.is_authenticated and not user.is_anonymous %}
 		<div class="d-none d-sm-block col-md-4" style="padding:0px">
@@ -65,7 +52,7 @@
 						<div class="groupLinks d-flex flex-column justify-content-center">
 							{% if is_member %}
 								{% if is_admin and group.moderated %}
-										<a href="{% url 'approve-posts' group.pk %}">
+									<a href="{% url 'approve-posts' group.pk %}">
 										Approve posts
 									</a>
 								{% endif %}
@@ -74,12 +61,16 @@
 									<a href="#add_admin_modal" data-toggle="modal">
 										Modify admins
 									</a>
+									<a id="make-unmoderated" href=''>
+										Make Unmoderated
+									</a>
+
 									{% endif %}
 									<a href="#change_owner_modal" data-toggle="modal">
 										Change owner
 									</a>
 								{% endif %}
-								<a href="">
+								<a href="#invite_members_modal" data-toggle="modal">
 									Invite members
 								</a>
 								<a href="{% url 'leave-group' group.pk %}">
@@ -161,6 +152,33 @@
 
 {% endif %}
 
+<!-- Invite Members Modal-->
+<div class="modal fade" id="invite_members_modal" tabindex="-1" role="dialog" aria-labelledby="inviteMembersModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 >Invite Members</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="invite-members-search-form" role="form" method="post">
+					<input type="hidden" name="group-id" value="{{ group.pk }}" />
+					<div class="form-group">
+						<input type="search" class="form-control" id="invite-member-search" name="search" placeholder="Start typing a friend's name" ic-post-to="{% url 'invite-member-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#invite-member-search-result-container" />
+					</div>
+				</form>
+				<table class="table table-striped" style="width:100%">
+					<span id="invite-member-search-result-container"></span>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Settings Modal -->
 <div class="modal fade" id="settings_overlay" tabindex="-1" role="dialog" aria-labelledby="settingsModal" aria-hidden="true">
@@ -197,46 +215,17 @@
 		</div>
 	</div>
 </div>
-
+{% if user.is_authenticated %}
+	{% include 'main/modules/tag_modal.html' %}
+{% endif %}
 {% endblock %}
 
 {% block javascript %}
 
-{% if is_owner %}
 <script src="{% static 'js/csrftoken.js' %}"></script>
+{% if is_owner %}
 <script>
-function like(pk) {
-	function csrfSafeMethod(method) {
-		// these HTTP methods do not require CSRF protection
-		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-	}
-	// send ajax
-	$.ajax({
-		beforeSend: function(xhr, settings) {
-				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-					xhr.setRequestHeader("X-CSRFToken", csrftoken);
-				}
-			},
-		url: '{% url "like-post" %}', // url where to submit the request
-		type : "POST", // type of action POST || GET
-		dataType : 'json', // data type
-		data : { 'post-id': pk },
-		success : function(result) {
-			console.log(result);
-			if (result['result'] == 'liked') {
-				$('#like-button-' + pk).css('color', 'green');
-				$('#like-button-' + pk).addClass('liked');
-				$('#post-' + pk).text(result['new_count'])
-			}
-			else {
-				$('#like-button-' + pk).css('color', 'grey');
-				$('#post-' + pk).text(result['new_count'])
-			};
-		},
-	});
-	
 
-};
 
 function makeAdmin(pk) {
 	function csrfSafeMethod(method) {
@@ -322,6 +311,36 @@ function changeOwner(pk) {
 	
 };
 
+$('#make-unmoderated').click( function(e) {
+	e.preventDefault();
+	var r = confirm("Are you sure you want to make the group {{ group.name|safe }} unmoderated?\nThis action cannot be undone, and all unapproved posts will automatically be approved.");
+	if (r==true) {
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+		// send ajax
+		$.ajax({
+			beforeSend: function(xhr, settings) {
+					if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+						xhr.setRequestHeader("X-CSRFToken", csrftoken);
+					}
+				},
+			url: '{% url "make-group-unmoderated" group.pk %}', // url where to submit the request
+			type : "POST", // type of action POST || GET
+			dataType : 'json', // data type
+			data : { 'group': {{ group.pk }} },
+			success : function(result) {
+				console.log(result);
+				if (result['success']) {
+					window.location.href = '{% url "group" group.pk %}';
+				}
+			},
+		});
+	};
+	return false;
+});
+
 $('#delete-group').click( function(e) {
 	e.preventDefault();
 	var r = confirm("Are you sure you want to delete the group {{ group.name|safe }}?\nThis action cannot be reversed, and all posts in the group will be lost forever.");
@@ -354,6 +373,12 @@ $('#delete-group').click( function(e) {
 	};
 	return false;
 });
+</script>
+{% endif %}
+
+{% if is_member%}
+<script>
+	{% include 'main/modules/like_and_tag.js' %}
 </script>
 {% endif %}
 {% endblock %}

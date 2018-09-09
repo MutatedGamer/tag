@@ -1,0 +1,36 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block references %}
+<link type="text/css" href="{% static 'css/posts.css' %}" rel="stylesheet" />
+<link type="text/css" href="{% static 'css/groups.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div id="main" class="container">
+	{% if messages %}
+	<div class="row">
+		{% for message in messages %}
+		<div class="col-12"><div class="box message {% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</div></div>
+		{% endfor %}
+	</div>
+	{% endif %}
+
+	<div class="row" style="height: 100%">
+		<div id="posts" class="col-12">
+		{% include 'main/modules/posts.html' %}
+	</div>
+</div>
+{% if user.is_authenticated %}
+	{% include 'main/modules/tag_modal.html' %}
+{% endif %}
+{% endblock %}
+
+{% block javascript %}
+{% if user.is_authenticated and not user.is_anonymous %}
+<script src="{% static 'js/csrftoken.js' %}"></script>
+<script>
+	{% include 'main/modules/like_and_tag.js' %}
+</script>
+{% endif %}
+{% endblock %}

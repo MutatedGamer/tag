@@ -20,6 +20,7 @@
 		<!-- Font Awesome Icons -->
 		<link href= "{% static "css/fontawesome/fa-svg-with-js.css" %}" rel="stylesheet">
 		<script src="{% static "js/fontawesome/fontawesome-all.js" %}"></script>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		<!-- Custom CSS -->
 		<link type="text/css" href="{% static "css/main.css" %}" rel="stylesheet" />
 		{% block references %}
@@ -35,6 +36,16 @@
 		<script src="{% static "js/tag_appid.js" %}"></script>
 		<!-- Custom JS -->
 		<script src="{% static "js/main.js" %}"></script>
+		<script>
+		function updateCount() {
+			var $unreadCount = $('.unread').length;
+			if ($unreadCount) {
+				$('#unreadCount').text($unreadCount);
+			};
+		};
+
+		$(window).on("load", updateCount );
+		</script>
 		{% block javascript %}
 		{% endblock %}
 	</body>

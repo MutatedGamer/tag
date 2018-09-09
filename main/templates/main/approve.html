@@ -56,6 +56,7 @@ function approvePost(pk) {
 		success : function(result) {
 			$('#row-' + pk).addClass('alert-success');
 			$('#row-' + pk).fadeOut(700);
+			updateCount();
 		},
 	});
 };
@@ -79,6 +80,7 @@ function removePost(pk) {
 		success : function(result) {
 			$('#row-' + pk).addClass('alert-danger');
 			$('#row-' + pk).fadeOut(700);
+			updateCount();
 		},
 	});
 };

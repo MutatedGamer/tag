@@ -80,18 +80,37 @@
 		</div>
 		<div id="sidebar" class="d-none d-sm-block col-sm-4">
 			<div class="box">
-				<h1> Suggested Groups </h1>
-				<hr>
-				<div class="suggested-item">
-					<a href="group_page.html">
-					<img src="{% static 'img/headshot.png' %}">
-					MIT Confessions
-					</a>
-					<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-						<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
-					</form>
+					<h1> Suggested Groups </h1>
+					
+					<hr>
+					{% if suggested_groups.count == 0 %}
+					<div class="suggested-item">
+						Groups that your friends are in will appear here.
+					</div>
+					{% endif %}
+					{% for group in suggested_groups %}
+						<div class="suggested-item">
+							<table width="100%">
+								<tr>
+									<td width="5%">
+										<img src="{{ group.photo.url }}">
+									</td>
+									<td width="90%">
+										{{ group.name }}
+									</td>
+									<td>
+										<form class="btn-group float-right" role="group" method="post" action="{% url 'join-group' group.pk %}" style="font-size: 5px; padding-right:0px;">
+											<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
+										</form>
+									</td>
+								</tr>
+							</table>
+						</div>
+
+					{% endfor %}
 				</div>
-			</div>
+
+
 			<div class="box">
 				<h1> Quick Links </h1>
 				<hr>
@@ -100,9 +119,11 @@
 						<a href='#create-group' data-toggle="modal">
 						Create a group
 						</a>
+						<!--
 						<a href="www.youtube.com">
 						Manage your groups
 						</a>
+						--!>
 					</div>
 				</div>
 			</div>

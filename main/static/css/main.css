@@ -35,7 +35,8 @@ img {
 
 
 .dropdown-item {
-	white-space: normal
+	white-space: normal;
+	padding: 10px;
 }
 
 .dropdown-menu {
@@ -246,11 +247,31 @@ hr {
 }
 */
 
-.like-button {
+.post-button {
 	color: grey;
 }
 
-.like-button:hover {
-	color: green;
+.post-button:hover > * {
+	color: #08B7EC;
+}
+
+.unread {
+	background-color: #e6e6e6;
+}
+
+.dropdown-divider {
+	margin: 0px !important;
+}
+
+.post-button {
+	margin-left: 20px;
+	margin-right: 20px;
+	width: 100px;
+	display: inline-flex;
+	vertical-align: middle !important;
+	justify-content: center;
+	height: 2em;
+	line-height: 2em;
+	cursor: pointer;
 }
 

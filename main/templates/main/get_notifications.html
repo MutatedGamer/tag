@@ -1,0 +1,51 @@
+{% if items %}
+	{% for item in items %}
+		{% if item.action == "friend_request_received" %}
+		<a class="dropdown-item {% if not item.read %}unread{% endif %}" href="{% url 'user-profile' item.sender.pk %}">
+			<table width="100%">
+				<tr>
+					<td style="padding-right:9px;"><img src="{{ item.sender.avatar.url }}" style="width:30px; height:30px"></td>
+					<td>{{ item.sender.first_name }} {{ item.sender.last_name }} sent you a friend request.</td>
+				</tr>
+			</table>
+			<!-- Not working yet
+			<br />
+			<form method="post" action="{% url 'respond-request' item.sender.pk %}">
+				{% csrf_token %}
+				<div class="d-flex justify-content-around">
+					<button class="btn btn-success" name="accept" type="submit">Accept</button>
+					<button class="btn btn-danger" name="decline" type="submit">Decline</button>
+				</div>
+			</form>
+			--!>
+		</a>
+		{% endif %}
+		{% if item.action == "posts_to_approve" and item.for_group.to_approve.count > 0 %}
+		<a class="dropdown-item {% if not item.read %}unread{% endif %}" href="{% url 'approve-posts' item.for_group.pk %}">
+			{{ item.for_group.name }} has {{ item.for_group.to_approve.count }} posts to approve.	
+		</a>
+		{% endif %}
+		{% if item.action == 'tagged' %}
+		<a class="dropdown-item {% if not item.read %}unread{% endif %}" href="{% url 'post' item.for_post.pk %}">
+			<table width="100%">
+				<tr>
+					<td style="padding-right:9px;"><img src="{{ item.sender.avatar.url }}" style="width:30px; height:30px"></td>
+					<td>{{ item.sender.first_name}} {{ item.sender.last_name }} tagged you in a post!</td>
+				</tr>
+			</table>
+
+		{% endif %}
+		{% if item.action == 'invited' %}
+		<a class="dropdown-item {% if not item.read %}unread{% endif %}" href="">
+			<table width="100%">
+				<tr>
+					<td style="padding-right:9px;"><img src="{{ item.sender.avatar.url }}" style="width:30px; height:30px"></td>
+					<td>{{ item.sender.first_name}} {{ item.sender.last_name }} invited you to join {{ item.for_group.name }}!</td>
+				</tr>
+			</table>
+
+		{% endif %}
+
+		<div class="dropdown-divider"></div>
+	{% endfor %}
+{% endif %}

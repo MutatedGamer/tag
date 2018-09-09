@@ -1,0 +1,12 @@
+{% if friends %}
+	<table class="table table-striped">
+		{% for friend in friends %}
+		</ul>
+		<tr>
+			<td style="min-width: 50px"><img src="{{ friend.avatar.url }}" width="100%"></td>
+			<td style="width: 75%">{{ friend.first_name }} {{ friend.last_name }}</td>
+			<td style="width: 10%"><button type="button" onclick="tagFriendAJAX('{{ post.pk }}', '{{ friend.pk }}')" class="btn btn-primary">Tag</button>
+		</tr>
+		{% endfor %}
+	</table>
+{% endif %}

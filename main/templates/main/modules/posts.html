@@ -1,0 +1,38 @@
+{% for post in posts %}
+<div class="box">
+	<div class="box-header">
+		{% if not post.group %}
+			Your friend posted...
+		{% else %}
+			Someone posted
+			{% if page == 'home' %}
+				in <a href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
+			{% else %}
+				...
+			{% endif %}
+		{% endif %}
+	</div>
+	<hr>
+	{{ post.body }}
+	{% if user.is_authenticated %}
+		<hr>
+		<div class="d-flex justify-content-center justify-content-md-start">
+			<div class="post-button" onclick="like('{{ post.pk }}')" >
+				<i id='like-button-{{ post.pk }}' class="material-icons like-button" style="{% if post in user.liked_posts.all %}color: green; {% endif %}">arrow_upward</i>
+				<span style="margin-left: 5px;" id="post-{{ post.pk }}">{{ post.likes }}</span>
+			</div>
+			<div class="post-button" onclick="tag('{{ post.pk }}')">
+				<i class="material-icons tag-button" style="font-size:24px;">alternate_email</i>
+				<span style="margin-left: 5px;">{{ post.tag.count }}</span>
+			</div>
+			<a  href="{% url 'post' post.id %}" style="text-decoration: none;">
+				<div class="post-button">
+					<i class="material-icons link" style="font-size: 24px">link</i>
+				</div>
+			</a>
+		</div>
+	{% endif %}
+
+</div>
+{% endfor %}
+

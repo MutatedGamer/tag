@@ -19,8 +19,13 @@
 				</div>
 				{% if user.is_authenticated and userProfile != user %}
 					{% if is_friend %}
+						<hr>
 						<div class="d-flex justify-content-center">
-							You're friends!
+							<form method="post" action="{% url 'remove-friend' userProfile.pk %}">
+								{% csrf_token %}
+								<button class="btn btn-danger" type="submit">Remove friend</button>
+							</form>
+
 						</div>
 					{% elif sent_request %} 
 						<hr>
@@ -34,7 +39,7 @@
 							 <br />
 							<form method="post" action="{% url 'respond-request' userProfile.pk %}">
 								{% csrf_token %}
-								<button class="btn btn-primary" name="accept" type="submit">Accept</button>
+								<button class="btn btn-success" name="accept" type="submit">Accept</button>
 								<button class="btn btn-danger" name="decline" type="submit">Decline</button>
 							</form>
 

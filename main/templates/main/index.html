@@ -28,24 +28,7 @@
 					</div>
 				</form>
 			</div>
-			{% for post in posts %}
-			<div class="box">
-				<div class="box-header">
-					{% if not post.group %}
-					Your friend posted...
-					{% else %}
-					Someone posted in <a href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
-					{% endif %}
-					{% if user.is_authenticated %}
-						<div class="float-right" style="font-size:1.3em;">
-						<span id="post-{{ post.pk }}">{{ post.likes }}</span><i id='like-button-{{ post.pk }}' class="fas fa-arrow-circle-up fa-lg like-button" onclick="like('{{ post.pk }}')" style="margin-left:5px; {% if post in liked_posts %}color: green; {% endif %}"></i>
-						</div>
-					{% endif %}
-				</div>
-				<hr>
-				{{ post.body }}
-			</div>
-			{% endfor %}
+			{% include 'main/modules/posts.html' %}
 			<div class="box">
 				<div class="box-header">
 					Your friend posted...
@@ -66,39 +49,65 @@
 			<div id="sidebar">
 				<div class="box">
 					<h1> Suggested Friends </h1>
-					
 					<hr>
+					{% if suggested_friends|length == 0 %}
 					<div class="suggested-item">
-						<img src="{% static 'img/headshot.png' %}">
-						Luke Bordonaro
-						<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-							<button class="btn btn-outline-success btn-sm" type="submit">Yes</button>
-							<button class="btn btn-outline-danger btn-sm" type="submit">No</button>
-						</form>
+						Facebook friends on Tag will appear here.
 					</div>
+					{% endif %}
 
-					<hr>
+					{% for friend in suggested_friends %}
 					<div class="suggested-item">
-						<img src="{% static 'img/headshot.png' %}">
-						Luke Bordonaro
-						<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-							<button class="btn btn-outline-success btn-sm" type="submit">Yes</button>
-							<button class="btn btn-outline-danger btn-sm" type="submit">No</button>
-						</form>
+						<table width="100%">
+							<tr>
+								<td width="5%">
+									<img src="{{ friend.avatar.url }}">
+								</td>
+								<td width="95%">
+									{{ friend.first_name }} {{ friend.last_name }}
+								</td>
+								<td>
+									<form class="float-right" role="form" style="font-size: 5px; padding-right:0px" method="post" action="{% url 'send-request' friend.pk %}">
+										{% csrf_token %}
+										<button class="float-right btn btn-outline-notifications btn-sm" type="submit">Send</button>
+									</form>
+								</td>
+							</td>
+						</table>
 					</div>
+					<hr>
+					{% endfor %}
 				</div>
 
 				<div class="box">
 					<h1> Suggested Groups </h1>
 					
 					<hr>
+					{% if suggested_groups.count == 0 %}
 					<div class="suggested-item">
-						<img src="{% static 'img/headshot.png' %}">
-						MIT Confessions
-						<form class="btn-group float-right" role="group" style="font-size: 5px; padding-right:0px;">
-							<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
-						</form>
+						Groups that your friends are in will appear here.
 					</div>
+					{% endif %}
+					{% for group in suggested_groups %}
+						<div class="suggested-item">
+							<table width="100%">
+								<tr>
+									<td width="5%">
+										<img src="{{ group.photo.url }}">
+									</td>
+									<td width="90%">
+										{{ group.name }}
+									</td>
+									<td>
+										<form class="btn-group float-right" role="group" method="post" action="{% url 'join-group' group.pk %}" style="font-size: 5px; padding-right:0px;">
+											<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
+										</form>
+									</td>
+								</tr>
+							</table>
+						</div>
+
+					{% endfor %}
 				</div>
 			</div>
 		</div>
@@ -148,46 +157,16 @@
 		</div>
 	</div>
 </div>
+{% if user.is_authenticated %}
+	{% include 'main/modules/tag_modal.html' %}
+{% endif %}
 {% endblock %}
 
 {% block javascript %}
 {% if user.is_authenticated and not user.is_anonymous %}
 <script src="{% static 'js/csrftoken.js' %}"></script>
 <script>
-function like(pk) {
-	function csrfSafeMethod(method) {
-		// these HTTP methods do not require CSRF protection
-		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-	}
-	// send ajax
-	$.ajax({
-		beforeSend: function(xhr, settings) {
-				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-					xhr.setRequestHeader("X-CSRFToken", csrftoken);
-				}
-			},
-		url: '{% url "like-post" %}', // url where to submit the request
-		type : "POST", // type of action POST || GET
-		dataType : 'json', // data type
-		data : { 'post-id': pk },
-		success : function(result) {
-			console.log(result);
-			if (result['result'] == 'liked') {
-				$('#like-button-' + pk).css('color', 'green');
-				$('#like-button-' + pk).addClass('liked');
-				$('#post-' + pk).text(result['new_count'])
-			}
-			else {
-				$('#like-button-' + pk).css('color', 'grey');
-				$('#post-' + pk).text(result['new_count'])
-			};
-		},
-	});
-	
-
-};
-
-
+	{% include 'main/modules/like_and_tag.js' %}
 </script>
 {% endif %}
 {% endblock %}
