@@ -6,107 +6,32 @@
 {% endblock %}
 
 {% block content %}
-<div id="main" class="container" >
-	<div class="row" style="height:100%">
-		<div class="d-none d-sm-block col-sm-5">
-			<div id="sidebar">
-				<div class="box">
-					<div id="userHeader">
-						<a id="userPicture">
-						<img src="{% static 'img/headshot.png' %}">
-						</a>
-						<div id="userName" class="resize"> Luke Bordonaro</div>
-					</div>
-					<hr>
-					<span id="userBio"> Bio: Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-					cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-					proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-					<hr>
-					<span id="userSchool">School: 
-					<hr>
-					Friends (2543 total)
-					<table id="friendsTable" class="float-center" style="width:75%">
-						<tr>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-						</tr>
-						<tr>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-						</tr>
-						<tr>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-							<td><a href="profile_page.html"><img src="{% static 'img/headshot.png' %}"></a></td>
-						</tr>
-						<tr>
-							<td colspan="3" style="text-align: center; padding-top:15px;">view all</td>
-						</tr>
-					</table>
-				</div>
-			</div>
-		</div>
-		<div id="userPosts" class="col-12 col-sm-7">
-			<!-- <button class="btn btn-primary" onclick="getFriends()">Find Friends on Tag</button> -->
+	{% if user.is_authenticated %}				
+		<div id="starred-posts" class="col-12">
 			<div class="box message">
-				<h1 style="text-align: center; margin:0px">Your Posts</h1>
+				<h1 style="text-align: center; margin:0px">Your Starred Posts</h1>
 			</div>
-			<div class="box">
-				<div class="boxHeader">
-					<i class="fas fa-trash fa-lg removeButton" onclick="remove()" style="margin-left:5px"></i>
-					<div class="float-right" style="font-size:1.3em;">
-						200
-					</div>
+			{% include 'main/modules/posts.html' %}
+			{% if posts.count == 0 %}
+				<div class="box message">
+					Click the star icon on a post to easily view them here.
 				</div>
-				<hr>
-				Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-				tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-				quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-				cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-				proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			{% endif %}
+		</div>
+	{% else %}
+		<div class="col-12">
+			<div class="box message">
+				Log in to view your starred posts!
 			</div>
 		</div>
-	</div>
-</div>
-<!-- Settings Modal -->
-<div class="modal fade" id="settings_overlay" tabindex="-1" role="dialog" aria-labelledby="settingsModal" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 >Settings</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form>
-					<div class="form-group">
-						<label for="exampleInputEmail1">Email address</label>
-						<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-						<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-					</div>
-					<div class="form-group">
-						<label for="exampleInputPassword1">Password</label>
-						<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-					</div>
-					<div class="form-check">
-						<input type="checkbox" class="form-check-input" id="exampleCheck1">
-						<label class="form-check-label" for="exampleCheck1">Check me out</label>
-					</div>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary" onclick="saveSettings()" data-dismiss="modal">Save changes</button>
-			</div>
-		</div>
-	</div>
-</div>
+	{% endif %}
+{% endblock %}
+
+{% block javascript %}
+	{% if user.is_authenticated and not user.is_anonymous %}
+	<script src="{% static 'js/csrftoken.js' %}"></script>
+	<script>
+		{% include 'main/modules/like_and_tag.js' %}
+	</script>
+	{% endif %}
 {% endblock %}

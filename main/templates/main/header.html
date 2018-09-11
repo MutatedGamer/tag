@@ -6,74 +6,82 @@
 				<ul id="navbar-left" class="navbar-nav mr-auto">
 					<li class="nav-item">
 						<a class="nav-link {% if page == 'home' %} active {% endif %}" href="{% url 'index' %}">
-						<i class="fas fa-home fa-lg"></i>
+							<i class="fas fa-home fa-lg"></i>
 						</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link {% if page == 'groups' %} active {% endif %}" href="{% url 'groups' %}">
-						<i class="fas fa-users fa-lg"></i>
+							<i class="fas fa-users fa-lg"></i>
 						</a>
 					</li>
+				
 					<!--
-					<li class="nav-item">
-						<a class="nav-link {% if page == 'profile' %} active {% endif %}" href="{% url 'profile' %}">
-						<i class="fas fa-user-circle fa-lg"></i>
-						</a>
-					</li>
-					--!>
-					<li class="nav-item">
-						<a class="nav-link {% if page == 'notifications' %} active {% endif %}" href="">
+					<li class="nav-item disabled">
+						<a class="nav-link {% if page == 'notifications' %} active {% endif %}" href="{% url 'notifications' %}">
 							<i class="fas fa-bell fa-lg"></i>
 							<span id="unreadCount" class="badge badge-pill badge-danger"></span>
 						<a>
 					</li>
+					-->
+
+					<li class="nav-item">
+						<a class="nav-link {% if page == 'profile' %} active {% endif %}" href="{% url 'profile' %}">
+							<i class="fas fa-star fa-lg"></i>
+
+						</a>
+					</li>
+
+					<li class="nav-item d-md-none">
+						<a class="nav-link" onclick="openNav()">
+							<i class="fas fa-bars fa-lg"></i>
+						</a>
+					</li>
 				</ul>
-				<a class="icon" style="font-size: 24px; font-family: 'Muli', sans-serif; color:#16262E;">
-				tag<span style="color:#3C7A89">@</span>mit
+				<a class="icon" id="site-title">
+						tag<span style="color:#3C7A89">@</span>mit
 				</a>
-				<form class="search-group input-group input-group-sm" style="padding: 11px 0px; padding-right:5px; font-size: 17.5px; width:20%">
-					<input type="text" class="form-control" placeholder="Search" aria-label="search" aria-describedby="basic-addon1">
-					<div class="input-group-append">
-						<button class="btn btn-outline-success my-2 my-sm-0 btn-sm" type="submit"><i class="fas fa-search fa-lg"></i></button>
-					</div>
-				</form>
-				{% if user.is_authenticated %}
-					<form id="check-for-notifications" role="form" method="post">
-						<input type="hidden" class="form-control" id="update-notifications" ic-post-to="{% url 'get-notifications' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="5s" ic-trigger-on="load" ic-target="#notifications" ic-action="updateCount" />
+
+					<!--
+					<form class="search-group input-group input-group-sm" style="padding: 11px 0px; padding-right:5px; font-size: 17.5px; width:20%">
+						<input type="text" class="form-control" placeholder="Search" aria-label="search" aria-describedby="basic-addon1">
+						<div class="input-group-append">
+							<button class="btn btn-outline-success my-2 my-sm-0 btn-sm" type="submit"><i class="fas fa-search fa-lg"></i></button>
+						</div>
 					</form>
-					<div id="login-area" style="white-space: nowrap">
+					-->
+					{% if user.is_authenticated %}
+						<form id="check-for-notifications" role="form" method="post">
+							<input type="hidden" class="form-control" id="update-notifications" ic-post-to="{% url 'get-notifications' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="5s" ic-trigger-on="load" ic-target="#notifications" ic-action="updateCount" />
+						</form>
 						<div class="dropdown" style="display: inline-block;">
-							<button type="button" class="btn btn-outline-notifications btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								<i style="padding-right:5px;" class="fas fa-bell fa-lg"></i><span id="unreadCount" class="badge badge-pill badge-info" style="margin-top: 2px;" ></span>
-							</button>
-							<div id="notifications" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-								<a class="dropdown-item" href="#">Super duper long notificaiton grdgdtf gfd gfd gdf gfd gfd gdfg dfg fdg fdg fdg fdg </a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#">Another action</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#">Something else here</a>
+								<button type="button" class="btn btn-outline-notifications btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-right: 10px">
+									<i style="padding-right:5px;" class="fas fa-bell fa-lg"></i><span id="unreadCount" class="badge badge-pill badge-info" style="margin-top: 2px;" ></span>
+								</button>
+								<div id="notifications" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+								</div>
+							</div>
+					{% endif %}
+					<span class="d-none d-md-inline">
+					{% if user.is_authenticated %}
+						<div id="login-area" style="white-space: nowrap">
+							<div class="btn-group" role="group" style="padding-left: 1px; display:inline-block">
+								<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#update-profile">Edit profile</button>
+								<a id="logout-button" class="btn btn-outline-danger btn-sm" href="{% url 'logout' %}" style="margin-left:-5px">
+									Logout
+								</a>
 							</div>
 						</div>
-						<div class="btn-group" role="group" style="padding-left: 1px; display: inline-block;">
-							<button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#settings_overlay">
-								<i class="fas fa-cog fa-lg"></i>
-							</button>
-							<a id="logout-button" class="btn btn-outline-danger btn-sm" href="{% url 'logout' %}" style="margin-left:-5px">
-								<i class="fa fa-sign-out-alt fa-lg" aria-hidden="true"></i>
+					{% else %}
+						<div id="login-area" style="white-space: nowrap">
+							<a href="{% url 'social:begin' 'facebook' %}">
+								<div class="login-button">
+									<div class="login-facebook-icon">f</div>
+									<div class="login-facebook-text">Login with Facebook</div>
+								</div>
 							</a>
 						</div>
-						<div style="clear: both;"></div>
-					</div>
-				{% else %}
-					<div id="login-area" style="white-space: nowrap">
-						<a href="{% url 'social:begin' 'facebook' %}">
-							<div class="login-button">
-								<div class="login-facebook-icon">f</div>
-								<div class="login-facebook-text">Login with Facebook</div>
-							</div>
-						</a>
-					</div>
-				{% endif %}
+					{% endif %}
+				</span>
 		</nav>
 		</div>
 	</div>

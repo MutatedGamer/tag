@@ -7,222 +7,187 @@
 {% endblock %}
 
 {% block content %}
-<div id="main" class="container">
-	{% if messages %}
-	<div class="row">
-		{% for message in messages %}
-		<div class="col-12"><div class="box message {% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</div></div>
-		{% endfor %}
-	</div>
-	{% endif %}
-
-	<div class="row" style="height: 100%">
-		<div id="posts" class="col-12 {% if user.is_authenticated and not user.is_anonymous %} col-md-8 {% endif %}">
-			<div class="box">
-				<div class="groupTitle" style="text-align:center;">
-						<img src="{{ group.photo.url }}">
-						{{ group.name }}
-						<hr>
-						<span style="font-size:12px">{{ members.count }} member{% if members.count > 1 %}s{% endif %}</span>
-				</div>
-			</div>
-
-			{% if user.is_authenticated and not user.is_anonymous and is_member %}
-			<div id="compose" class="box">
-				<form method="post" action="{% url 'submit-post-to-group' group.pk %}">
-				 {% csrf_token %}
-				 <input type="hidden" id="group_id" name="group_id" value="{{ group.pk }}" />
-					<div class="input-group">
-						<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="2" placeholder="Submit post to {{ group.name }}" style="resize:none"></textarea>
-						<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
-					</div>
-				</form>
-			</div>
-			{% endif %}
-			{% include 'main/modules/posts.html' %}	
-		</div>
-		{% if user.is_authenticated and not user.is_anonymous %}
-		<div class="d-none d-sm-block col-md-4" style="padding:0px">
-			<div id="sidebar">
-				<div class="box">
-					<h1> Group Actions </h1>
-
+	<div id="posts" class="col-12 {% if user.is_authenticated and not user.is_anonymous %} col-md-8 {% endif %}">
+		<div class="infinite-container">
+		<div class="box">
+			<div class="groupTitle" style="text-align:center;">
+					<img src="{{ group.photo.url }}">
+					{{ group.name }}
 					<hr>
-					<div class="suggested-item">
-						<div class="groupLinks d-flex flex-column justify-content-center">
-							{% if is_member %}
-								{% if is_admin and group.moderated %}
-									<a href="{% url 'approve-posts' group.pk %}">
-										Approve posts
-									</a>
-								{% endif %}
-								{% if is_owner %}
-									{% if group.moderated %}
-									<a href="#add_admin_modal" data-toggle="modal">
-										Modify admins
-									</a>
-									<a id="make-unmoderated" href=''>
-										Make Unmoderated
-									</a>
-
-									{% endif %}
-									<a href="#change_owner_modal" data-toggle="modal">
-										Change owner
-									</a>
-								{% endif %}
-								<a href="#invite_members_modal" data-toggle="modal">
-									Invite members
-								</a>
-								<a href="{% url 'leave-group' group.pk %}">
-									Leave group
-								</a>
-								{% if is_owner %}
-									<a id="delete-group" href=''>
-										Delete group
-									</a>
-								{% endif %}
-							{% else %}
-								<a href="{% url 'join-group' group.pk %}">
-									Join group
-								</a>
-							{% endif %}
-						</div>
-					</div>
-				</div>
+					<span style="font-size:12px">{{ members.count }} member{% if members.count > 1 %}s{% endif %}</span>
 			</div>
+		</div>
+
+		{% if user.is_authenticated and not user.is_anonymous and is_member %}
+		<div id="compose" class="box">
+			<form method="post" action="{% url 'submit-post-to-group' group.pk %}">
+			 {% csrf_token %}
+			 <input type="hidden" id="group_id" name="group_id" value="{{ group.pk }}" />
+				<div class="input-group">
+					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="2" placeholder="Submit post to {{ group.name }}" style="resize:none"></textarea>
+					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
+				</div>
+			</form>
 		</div>
 		{% endif %}
-	</div>
-</div>
-{% if is_owner %}
-<!-- Change Owner Modal-->
-<div class="modal fade" id="change_owner_modal" tabindex="-1" role="dialog" aria-labelledby="changeOwnerModal" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 >Change Owner</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form id="change-owner-search-form" role="form" method="post">
-					<input type="hidden" name="group-id" value="{{ group.pk }}" />
-					<div class="form-group">
-						<input type="search" class="form-control" id="change-owner-search" name="search" placeholder="Filter members" ic-post-to="{% url 'change-group-owner-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#change-owner-search-result-container" />
-					</div>
-				</form>
-				<table class="table table-striped" style="width:100%">
-					<span id="change-owner-search-result-container"></span>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- Add admin Modal-->
-<div class="modal fade" id="add_admin_modal" tabindex="-1" role="dialog" aria-labelledby="addAdminModal" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 >Modify Admins</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form id="add-admin-search-form" role="form" method="post">
-					<input type="hidden" name="group-id" value="{{ group.pk }}" />
-					<div class="form-group">
-						<input type="search" class="form-control" id="add-admin-search" name="search" placeholder="Filter members" ic-post-to="{% url 'add-admin-search' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="1s" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#search-result-container" />
-					</div>
-				</form>
-				<table class="table table-striped" style="width:100%">
-					<span id="search-result-container"></span>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
 
-{% endif %}
+		{% include 'main/modules/posts.html' %}	
+		</div>
+		{% if posts.has_next %}
+		<span class="d-none">	<a class="infinite-more-link" href="?page={{ posts.next_page_number }}">more</a></span>
+		{% endif %}
+		<div class="box loading" style="display: none;">
+			Loading...
+		</div>
+	</div>
+{% endblock %}
 
-<!-- Invite Members Modal-->
-<div class="modal fade" id="invite_members_modal" tabindex="-1" role="dialog" aria-labelledby="inviteMembersModal" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 >Invite Members</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
+{% block sidebar %}
+	{% if user.is_authenticated and not user.is_anonymous %}
+		<div class="box">
+			<h1> Group Actions </h1>
+			<hr>
+			<div class="suggested-item">
+				<div class="groupLinks d-flex flex-column justify-content-center">
+					{% if is_member %}
+						{% if is_admin and group.moderated %}
+							<a href="{% url 'approve-posts' group.pk %}">
+								Approve posts
+							</a>
+						{% endif %}
+						{% if is_owner %}
+							{% if group.moderated %}
+							<a href="#add_admin_modal" data-toggle="modal">
+								Modify admins
+							</a>
+							<a id="make-unmoderated" href=''>
+								Make Unmoderated
+							</a>
+
+							{% endif %}
+							<a href="#change_owner_modal" data-toggle="modal">
+								Change owner
+							</a>
+						{% endif %}
+						<a href="#invite_members_modal" data-toggle="modal">
+							Invite members
+						</a>
+						<a href="{% url 'leave-group' group.pk %}">
+							Leave group
+						</a>
+						{% if is_owner %}
+							<a id="delete-group" href=''>
+								Delete group
+							</a>
+						{% endif %}
+					{% else %}
+						<a href="{% url 'join-group' group.pk %}">
+							Join group
+						</a>
+					{% endif %}
+				</div>
 			</div>
-			<div class="modal-body">
-				<form id="invite-members-search-form" role="form" method="post">
-					<input type="hidden" name="group-id" value="{{ group.pk }}" />
-					<div class="form-group">
-						<input type="search" class="form-control" id="invite-member-search" name="search" placeholder="Start typing a friend's name" ic-post-to="{% url 'invite-member-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#invite-member-search-result-container" />
-					</div>
-				</form>
-				<table class="table table-striped" style="width:100%">
-					<span id="invite-member-search-result-container"></span>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block modals %}
+	{% if is_owner %}
+	<!-- Change Owner Modal-->
+	<div class="modal fade" id="change_owner_modal" tabindex="-1" role="dialog" aria-labelledby="changeOwnerModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 >Change Owner</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="change-owner-search-form" role="form" method="post">
+						<input type="hidden" name="group-id" value="{{ group.pk }}" />
+						<div class="form-group">
+							<input type="search" class="form-control" id="change-owner-search" name="search" placeholder="Filter members" ic-post-to="{% url 'change-group-owner-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#change-owner-search-result-container" />
+						</div>
+					</form>
+					<table class="table table-striped" style="width:100%">
+						<span id="change-owner-search-result-container"></span>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-
-<!-- Settings Modal -->
-<div class="modal fade" id="settings_overlay" tabindex="-1" role="dialog" aria-labelledby="settingsModal" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 >Settings</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form>
-					<div class="form-group">
-						<label for="exampleInputEmail1">Email address</label>
-						<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-						<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-					</div>
-					<div class="form-group">
-						<label for="exampleInputPassword1">Password</label>
-						<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-					</div>
-					<div class="form-check">
-						<input type="checkbox" class="form-check-input" id="exampleCheck1">
-						<label class="form-check-label" for="exampleCheck1">Check me out</label>
-					</div>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary" onclick="saveSettings()" data-dismiss="modal">Save changes</button>
+	<!-- Add admin Modal-->
+	<div class="modal fade" id="add_admin_modal" tabindex="-1" role="dialog" aria-labelledby="addAdminModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 >Modify Admins</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="add-admin-search-form" role="form" method="post">
+						<input type="hidden" name="group-id" value="{{ group.pk }}" />
+						<div class="form-group">
+							<input type="search" class="form-control" id="add-admin-search" name="search" placeholder="Filter members" ic-post-to="{% url 'add-admin-search' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="1s" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#search-result-container" />
+						</div>
+					</form>
+					<table class="table table-striped" style="width:100%">
+						<span id="search-result-container"></span>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-{% if user.is_authenticated %}
-	{% include 'main/modules/tag_modal.html' %}
-{% endif %}
+
+	{% endif %}
+
+	<!-- Invite Members Modal-->
+	<div class="modal fade" id="invite_members_modal" tabindex="-1" role="dialog" aria-labelledby="inviteMembersModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 >Invite Members</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="invite-members-search-form" role="form" method="post">
+						<input type="hidden" name="group-id" value="{{ group.pk }}" />
+						<div class="form-group">
+							<input type="search" class="form-control" id="invite-member-search" name="search" placeholder="Start typing a friend's name" ic-post-to="{% url 'invite-member-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#invite-member-search-result-container" />
+						</div>
+					</form>
+					<table class="table table-striped" style="width:100%">
+						<span id="invite-member-search-result-container"></span>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% if user.is_authenticated %}
+		{% include 'main/modules/tag_modal.html' %}
+	{% endif %}
 {% endblock %}
 
 {% block javascript %}
 
-<script src="{% static 'js/csrftoken.js' %}"></script>
+{% if user.is_authenticated and not user.is_anonymous %}
+	<script src="{% static 'js/csrftoken.js' %}"></script>
+{% endif %}
+
 {% if is_owner %}
 <script>
 

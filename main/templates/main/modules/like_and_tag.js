@@ -53,6 +53,43 @@ function like(pk) {
 			};
 		},
 	});
-	
-
 };
+
+function star(pk) {
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	// send ajax
+	$.ajax({
+		beforeSend: function(xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			},
+		url: '{% url "star-post" %}', // url where to submit the request
+		type : "POST", // type of action POST || GET
+		dataType : 'json', // data type
+		data : { 'post-id': pk },
+		success : function(result) {
+			if (result['result'] == 'starred') {
+				$('#star-button-' + pk).css('color', 'gold');
+			}
+			else {
+				$('#star-button-' + pk).css('color', 'grey');
+			};
+		},
+	});
+};
+
+var infinite = new Waypoint.Infinite({
+		element: $('.infinite-container')[0],
+			context: $('body'),
+			onBeforePageLoad: function () {
+				$('.loading').show();
+			},
+			onAfterPageLoad: function ($items) {
+				$('.loading').hide();
+			}
+		});
+

@@ -7,30 +7,26 @@
 {% endblock %}
 
 {% block content %}
-<div id="main" class="container">
-	<div class="row" style="height: 100%">
-		<div id="posts" class="col-12">
-			<div class="box">
-				<div class="groupTitle">
-					<img src="{{ group.photo.url }}">
-					{{ group.name }} Pending Posts
-				</div>
-			</div>
-			<div class="box">
-				<table class="table table-striped table-bordered" width="100%">
-					{% for post in posts %}
-						<tr id="row-{{ post.pk }}">
-							<td style="width:84%"> {{ post.body }} </td>
-								<input type="hidden" name="post-id" value="{{ post.pk }}" />
-							<td style="width:8%"> <button onclick='approvePost("{{ post.pk }}")' type="button" value="submit" name="approve" class="submit btn btn-success">Approve</button></td>
-							<td style="width:8%"> <button type="button" onclick='removePost("{{ post.pk }}")' value="submit" name="delete"  class="submit btn btn-danger">Delete</button></td>
-						</tr>
-					{% endfor %}
-				</table>
+	<div id="posts" class="col-12">
+		<div class="box">
+			<div class="groupTitle">
+				<img src="{{ group.photo.url }}">
+				{{ group.name }} Pending Posts
 			</div>
 		</div>
+		<div class="box">
+			<table class="table table-striped table-bordered" width="100%">
+				{% for post in posts %}
+					<tr id="row-{{ post.pk }}">
+						<td style="width:84%"> {{ post.body }} </td>
+							<input type="hidden" name="post-id" value="{{ post.pk }}" />
+						<td style="width:8%"> <button onclick='approvePost("{{ post.pk }}")' type="button" value="submit" name="approve" class="submit btn btn-success">Approve</button></td>
+						<td style="width:8%"> <button type="button" onclick='removePost("{{ post.pk }}")' value="submit" name="delete"  class="submit btn btn-danger">Delete</button></td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
 	</div>
-</div>
 {% endblock %}
 
 {% block javascript %}

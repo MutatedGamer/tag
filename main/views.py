@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect, get_object_or_404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
 from users.models import *
 from django.contrib import messages
@@ -6,6 +7,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 import bleach
+from users.forms import CustomUserEditProfileForm
 from main.forms import CustomGroupForm
 from django.http import JsonResponse
 from django.views import View
@@ -66,6 +68,14 @@ class GetNotifications(View):
 	template = 'main/get_notifications.html'
 
 	@method_decorator(login_required)
+	def get(self, request):
+		context = dict()
+		context['page'] = 'notifications'
+		context['notifications'] = request.user.notifications.all()
+		return render(request, 'main/notifications.html', context)
+
+
+	@method_decorator(login_required)
 	def post(self, request):
 		template = loader.get_template(self.template)
 		items = request.user.notifications.all()
@@ -91,6 +101,7 @@ class TagFriends(View):
 		rendered_template = template.render(context, request)
 		return HttpResponse(rendered_template, content_type='text/html')
 
+
 @csrf_protect
 @login_required
 def tag(request):
@@ -112,6 +123,28 @@ def tag(request):
 	notification = Notification(sender = request.user, receiver = tagged_friend, action = 'tagged', for_post = post)
 	notification.save()
 	return JsonResponse({'success': True})
+
+
+@csrf_protect
+@login_required
+def star(request):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+	
+	post = get_object_or_404(Post, pk=int(request.POST['post-id']))
+
+	
+	if post not in request.user.starred_posts.all():
+		request.user.starred_posts.add(post)
+		post.save()
+		result = 'starred'
+		print('starred')
+	else:
+		request.user.starred_posts.remove(post)
+		post.save()
+		result = 'disliked'
+	
+	return JsonResponse({'result': result})
 
 
 @csrf_protect
@@ -146,7 +179,17 @@ def index(request):
 		context['liked_posts'] = request.user.liked_posts.all()
 		for group in request.user.groups_in.all():
 			posts = posts | group.posts.all()
-		context['posts'] = posts.order_by('-added')
+		posts = posts.order_by('-added')
+		page = request.GET.get('page', 1)
+		paginator = Paginator(posts, 3)
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+		context['posts'] = posts
+
 		social_user = request.user.social_auth.filter(provider = 'facebook').first()
 		if social_user:
 			url = u'https://graph.facebook.com/{0}/friends?fields=id,name&access_token={1}'.format(social_user.uid, social_user.extra_data['access_token'],)
@@ -165,6 +208,23 @@ def index(request):
 			context['suggested_groups'] = context['suggested_groups'] | friend.groups_in.all()
 		context['suggested_groups'] = context['suggested_groups'].difference(request.user.groups_in.all())
 	return render(request, 'main/index.html', context)
+
+@login_required
+@csrf_protect
+def edit_profile(request):
+	if request.method == 'POST':
+		bio  = bleach.clean(request.POST['bio'])
+
+		school = bleach.clean(request.POST['school'])
+
+		form = CustomUserEditProfileForm({'school': school, 'bio': bio}, request.FILES, instance=request.user)
+
+		if form.is_valid():
+			edit = form.save(commit = False)
+			edit.save()
+			return HttpResponseRedirect(reverse('user-profile', args=(request.user.pk,)))
+
+
 
 def post(request, post_id):
 	context = dict()
@@ -197,7 +257,17 @@ def group(request, group_id):
 	context['page'] = 'groups'
 	group = get_object_or_404(CustomGroup, pk=group_id)
 	context['group' ] = group
-	context['posts'] = group.posts.all().order_by('-added')
+	posts = group.posts.all().order_by('-added')
+	page = request.GET.get('page', 1)
+	paginator = Paginator(posts, 3)
+	try:
+		posts = paginator.page(page)
+	except PageNotAnInteger:
+		posts = paginator.page(1)
+	except EmptyPage:
+		posts = paginator.page(paginator.num_pages)
+	context['posts'] = posts
+
 	context['members'] = group.members.all()
 	context['liked_posts'] = request.user.liked_posts.all()
 	if request.user.is_authenticated:
@@ -468,6 +538,8 @@ def leave_group(request, group_id):
 def profile(request):
 	context = dict()
 	context['page'] = 'profile'
+	if request.user.is_authenticated:
+		context['posts'] = request.user.starred_posts.all().order_by('-added')
 	return render(request, 'main/profile.html', context)
 
 @login_required
@@ -476,11 +548,13 @@ def create_group(request):
 	if request.method == 'POST':
 		group_name = request.POST['name']
 		group_name = bleach.clean(group_name)
+		moderated = request.POST['moderated']
+		moderated = bleach.clean(moderated)
 		if CustomGroup.objects.filter(name = group_name).count() > 0:
 			messages.error(request, "A group with that name already exists. Sorry!")
 			return HttpResponseRedirect(reverse('groups') + '#create-group')
 		else:
-			group_form = CustomGroupForm(request.POST, request.FILES)
+			group_form = CustomGroupForm({'name': group_name, 'moderated': moderated}, request.FILES)
 			# group = CustomGroup(name=group_name, owner=request.user)
 			if group_form.is_valid():
 				group = group_form.save(commit = False)
@@ -558,6 +632,7 @@ def remove_friend(request, user_id):
 @csrf_protect
 @login_required
 def respond_to_friend_request(request, user_id):
+
 	userProfile = get_object_or_404(CustomUser, pk=user_id)
 
 	# Remove notification
@@ -574,6 +649,7 @@ def respond_to_friend_request(request, user_id):
 		# if accepting, add friend
 		request.user.friends.add(userProfile)
 	request.user.friend_requests_received.remove(userProfile)
+	
 	return HttpResponseRedirect(reverse('user-profile', args=(userProfile.pk,)))
 
 @csrf_protect

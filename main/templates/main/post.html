@@ -7,23 +7,15 @@
 {% endblock %}
 
 {% block content %}
-<div id="main" class="container">
-	{% if messages %}
-	<div class="row">
-		{% for message in messages %}
-		<div class="col-12"><div class="box message {% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</div></div>
-		{% endfor %}
-	</div>
-	{% endif %}
-
-	<div class="row" style="height: 100%">
-		<div id="posts" class="col-12">
+	<div id="posts" class="col-12">
 		{% include 'main/modules/posts.html' %}
 	</div>
-</div>
-{% if user.is_authenticated %}
-	{% include 'main/modules/tag_modal.html' %}
-{% endif %}
+{% endblock %}
+
+{% block modals %}
+	{% if user.is_authenticated %}
+		{% include 'main/modules/tag_modal.html' %}
+	{% endif %}
 {% endblock %}
 
 {% block javascript %}

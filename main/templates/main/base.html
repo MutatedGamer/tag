@@ -17,8 +17,10 @@
 		<script src="{% static "js/bootstrap/bootstrap.min.js" %}"></script>
 		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 		<script src="https://intercoolerreleases-leaddynocom.netdna-ssl.com/intercooler-1.1.1.min.js"></script>
+		<script src="{% static 'js/jquery.waypoints.js' %}"></script>
+		<script src="{% static 'js/infinite.js' %}"></script>
 		<!-- Font Awesome Icons -->
-		<link href= "{% static "css/fontawesome/fa-svg-with-js.css" %}" rel="stylesheet">
+		<link href= "{% static "css/fontawesome/all.css" %}" rel="stylesheet">
 		<script src="{% static "js/fontawesome/fontawesome-all.js" %}"></script>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		<!-- Custom CSS -->
@@ -29,8 +31,118 @@
 	</head>
 
 	<body>
+
 		{% include "main/header.html" %}
-		{% block content %}
+
+		<div id="main" class="container">
+
+			{% if messages %}
+			<div class="row">
+				{% for message in messages %}
+				<div class="col-12">
+					<div class="box message {% if message.tags %} {{ message.tags }}"{% endif %}>
+						{{ message }}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			<div class="row" style="height: 100%">
+				{% block content %}
+				{% endblock %}
+				<div class="col-md-4" style="padding:0px;">
+					<div id="sidebar" tabindex="-1">
+						<span class="d-md-none">
+							<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+							<div id="site-title">
+								tag<span style="color:#3C7A89">@</span>mit
+								{% if user.is_authenticated %}
+								<div class="box" style="white-space: nowrap">
+									<div class="suggested-item">
+										<div class="d-flex flex-column">
+
+										<a href="#update-profile" data-toggle="modal">Edit profile</a>
+											<a id="logout-button"  href="{% url 'logout' %}" style="margin-left:-5px">
+												Logout
+											</a>
+										</div>
+									</div>
+								</div>
+								{% else %}
+								<div id="login-area" style="white-space: nowrap">
+									<a href="{% url 'social:begin' 'facebook' %}">
+										<div class="login-button">
+											<div class="login-facebook-icon">f</div>
+											<div class="login-facebook-text">Login with Facebook</div>
+										</div>
+									</a>
+								</div>
+								{% endif %}
+							</div>
+						</span>
+						{% block sidebar %}
+						{% endblock %}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% if user.is_authenticated %}
+		<!-- Update Profile Modal-->
+		<div class="modal fade" id="update-profile" tabindex="-1" role="dialog" aria-labelledby="updateProfileModal" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 >Edit Profile</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form id="change-owner-search-form" role="form" enctype="multipart/form-data" method="post" action="{% url 'edit-profile' %}">
+										<h4>{{ user.first_name }} {{user.last_name}}</h4>
+							{% csrf_token %}
+										<div class="avatar-upload">
+											<div class="avatar-edit">
+												<input type='file' name="avatar" id="imageUpload" accept=".png, .jpg, .jpeg" />
+												<label for="imageUpload">
+													<i class="fa fa-pencil-alt"></i>
+												</label>
+											</div>
+											<div class="avatar-preview">
+												<div id="imagePreview" style="background-image: url({{ user.avatar.url }});">
+												</div>
+											</div>
+										</div>
+
+							<div class="form-group row">
+								<label for="textarea" class="col-2 col-form-label">Bio</label> 
+									<div class="col-10">
+										<textarea id="bio" name="bio" cols="40" rows="5" required="required" class="form-control">{{ user.bio }}</textarea>
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="school" class="col-2 col-form-label">School</label> 
+									<div class="col-10">
+										<input id="school" name="school" type="text" required="required" class="form-control here" value="{{ user.school }}">
+									</div>
+								</div>
+								<div class="form-group row">
+									<div class="offset-2 col-10">
+										<button name="submit" type="submit" class="btn btn-primary">Save</button>
+									</div>
+								</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		{% block modals %}
 		{% endblock %}
 		<!-- Facebook JS -->
 		<script src="{% static "js/tag_appid.js" %}"></script>
@@ -44,9 +156,33 @@
 			};
 		};
 
+		function openNav() {
+			document.getElementById("sidebar").style.width = "250px";
+		}
+
+		function closeNav() {
+			document.getElementById("sidebar").style.width = "0";
+		}
+
+		function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					$('#imagePreview').css('background-image', 'url('+e.target.result +')');
+					$('#imagePreview').hide();
+					$('#imagePreview').fadeIn(650);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+		$("#imageUpload").change(function() {
+			readURL(this);
+		});
+
 		$(window).on("load", updateCount );
 		</script>
 		{% block javascript %}
+
 		{% endblock %}
 	</body>
 </html>
