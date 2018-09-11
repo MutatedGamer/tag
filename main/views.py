@@ -229,8 +229,14 @@ def edit_profile(request):
 def post(request, post_id):
 	context = dict()
 	context['page'] = 'groups'
-	post = Post.objects.filter(pk=post_id)
-	context['posts'] = post
+	posts = Post.objects.filter(pk=post_id)
+	if request.user.is_authenticated:
+		notifications = Notification.objects.filter(receiver = request.user, for_post__in = posts)
+		for notification in notifications:
+			notification.read = True
+			notification.save()
+	context['posts'] = posts
+	print(posts)
 
 	return render(request, 'main/post.html', context)
 
@@ -269,8 +275,8 @@ def group(request, group_id):
 	context['posts'] = posts
 
 	context['members'] = group.members.all()
-	context['liked_posts'] = request.user.liked_posts.all()
 	if request.user.is_authenticated:
+		context['liked_posts'] = request.user.liked_posts.all()
 		if request.user == group.owner:
 			context['is_owner'] = True
 		else:

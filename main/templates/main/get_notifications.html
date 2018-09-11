@@ -33,6 +33,7 @@
 					<td>{{ item.sender.first_name}} {{ item.sender.last_name }} tagged you in a post!</td>
 				</tr>
 			</table>
+		</a>
 
 		{% endif %}
 		{% if item.action == 'invited' %}
@@ -43,6 +44,7 @@
 					<td>{{ item.sender.first_name}} {{ item.sender.last_name }} invited you to join {{ item.for_group.name }}!</td>
 				</tr>
 			</table>
+		</a>
 
 		{% endif %}
 

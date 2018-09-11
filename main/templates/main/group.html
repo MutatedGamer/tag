@@ -346,4 +346,17 @@ $('#delete-group').click( function(e) {
 	{% include 'main/modules/like_and_tag.js' %}
 </script>
 {% endif %}
+<script>
+var infinite = new Waypoint.Infinite({
+	element: $('.infinite-container')[0],
+		context: $('body'),
+		onBeforePageLoad: function () {
+			$('.loading').show();
+		},
+		onAfterPageLoad: function ($items) {
+			$('.loading').hide();
+		}
+	});
+</script>
+
 {% endblock %}
