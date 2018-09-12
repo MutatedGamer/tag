@@ -34,9 +34,9 @@ with open('tag/facebook_secret.txt') as f:
 	SOCIAL_AUTH_FACEBOOK_SECRET = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['tag-dev.us-east-1.elasticbeanstalk.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['tag-dev.us-east-1.elasticbeanstalk.com', '127.0.0.1', 'localhost', 'tag.mit.edu']
 
 
 # Application definition
