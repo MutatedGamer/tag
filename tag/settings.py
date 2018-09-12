@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'tag.wsgi.application'
 if 'RDS_HOSTNAME' in os.environ:
 	DATABASE = {
 		'default': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.environ['RDS_DB_NAME'],
             'USER': os.environ['RDS_USERNAME'],
             'PASSWORD': os.environ['RDS_PASSWORD'],
