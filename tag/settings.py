@@ -34,7 +34,7 @@ with open('tag/facebook_secret.txt') as f:
 	SOCIAL_AUTH_FACEBOOK_SECRET = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['.elasticbeanstalk.com', '127.0.0.1', 'localhost', 'tag.mit.edu']
 
@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'tag.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 if 'RDS_HOSTNAME' in os.environ:
-	DATABASE = {
+	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.environ['RDS_DB_NAME'],
@@ -105,7 +105,7 @@ else:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.sqlite3',
-			'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+			'NAME':  'db.sqlite3',
 		}
 	}
 
