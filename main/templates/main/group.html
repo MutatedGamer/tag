@@ -54,28 +54,33 @@
 							<a href="{% url 'approve-posts' group.pk %}">
 								Approve posts
 							</a>
+							<hr>
 						{% endif %}
 						{% if is_owner %}
 							{% if group.moderated %}
 							<a href="#add_admin_modal" data-toggle="modal">
 								Modify admins
 							</a>
+							<hr>
 							<a id="make-unmoderated" href=''>
 								Make Unmoderated
 							</a>
-
+							<hr>
 							{% endif %}
 							<a href="#change_owner_modal" data-toggle="modal">
 								Change owner
 							</a>
+							<hr>
 						{% endif %}
 						<a href="#invite_members_modal" data-toggle="modal">
 							Invite members
 						</a>
+						<hr>
 						<a href="{% url 'leave-group' group.pk %}">
 							Leave group
 						</a>
 						{% if is_owner %}
+							<hr>
 							<a id="delete-group" href=''>
 								Delete group
 							</a>
@@ -160,8 +165,8 @@
 					<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body">
-					<form id="invite-members-search-form" role="form" method="post">
+				<div class="modal-body" id="invite-member-body">
+					<form id="invite-members-search-form" role="form" method="post" action = "" onSubmit = "search(); return false;">
 						<input type="hidden" name="group-id" value="{{ group.pk }}" />
 						<div class="form-group">
 							<input type="search" class="form-control" id="invite-member-search" name="search" placeholder="Start typing a friend's name" ic-post-to="{% url 'invite-member-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#invite-member-search-result-container" />
@@ -344,6 +349,31 @@ $('#delete-group').click( function(e) {
 {% if is_member%}
 <script>
 	{% include 'main/modules/like_and_tag.js' %}
+
+	function inviteMemberAJAX(friend_pk) {
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+		// send ajax
+		$.ajax({
+			beforeSend: function(xhr, settings) {
+					if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+						xhr.setRequestHeader("X-CSRFToken", csrftoken);
+					}
+				},
+			url: '{% url "invite-member" group.pk %}', // url where to submit the request
+			type : "POST", // type of action POST || GET
+			dataType : 'json', // data type
+			data : { 'friend-pk': friend_pk },
+			success : function(result) {
+				// Display invited messages
+				$message = $('<div class="col-12 alert-success">Invited!</div>')
+				$('#invite-member-body').prepend($message);
+				$message.fadeOut(3000);
+			},
+		});
+	};
 </script>
 {% endif %}
 <script>

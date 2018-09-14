@@ -25,11 +25,6 @@
 					</form>
 
 				</div>
-			{% elif sent_request %} 
-				<hr>
-				<div class="d-flex justify-content-center">
-					You sent {{ userProfile.first_name }} a friend request.
-				</div>
 			{% elif received_request %} 
 				<hr>
 				<div class="d-flex flex-column align-items-center">
@@ -42,6 +37,11 @@
 					</form>
 
 				</div>
+			{% elif sent_request %} 
+				<hr>
+				<div class="d-flex justify-content-center">
+					You sent {{ userProfile.first_name }} a friend request.
+				</div>
 			{% else %} 
 				<hr>
 				<div class="d-flex justify-content-center">
@@ -53,16 +53,16 @@
 			{% endif %}
 		{% endif %}
 		<hr>
-		<span id="userBio"> Bio: {{ user.bio }}</span>
+		<span id="userBio"> Bio: {{ userProfile.bio }}</span>
 		<hr>
-		<span id="userSchool">School: {{ user.school }}</span>
+		<span id="userSchool">School: {{ userProfile.school }}</span>
 		<hr>
 		{% if userProfileFriends.count > 0 %}
 			Friends ({{ userProfileFriends.count }} total)
 			<div class="d-flex flex-wrap justify-content-center">
 			{% for friend in userProfileFriends|slice:"6" %}
 				<a href="{% url 'user-profile' friend.pk %}">
-					<div class="d-flex flex-column align-items-center">
+					<div class="d-flex flex-column align-items-center friend-container">
 						<img src="{{ friend.avatar.url }}" style="width:120px; margin:5px;">
 						{{ friend.first_name }} {{friend.last_name }}
 					</div>
@@ -96,7 +96,7 @@
 				<div class="d-flex flex-wrap justify-content-center">
 					{% for friend in userProfileFriends %}
 						<a href="{% url 'user-profile' friend.pk %}">
-							<div class="d-flex flex-column align-items-center">
+							<div class="d-flex flex-column align-items-center friend-container">
 								<img src="{{ friend.avatar.url }}" style="width:120px; margin:5px;">
 								{{ friend.first_name }} {{friend.last_name }}
 							</div>

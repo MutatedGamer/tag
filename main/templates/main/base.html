@@ -56,13 +56,16 @@
 						<span class="d-md-none">
 							<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 							<div id="site-title">
-								tag<span style="color:#3C7A89">@</span>mit
+								<a href="{% url 'index' %}" style="text-decoration: none">
+									tag<span style="color:#3C7A89">@</span>mit
+								</a>
 								{% if user.is_authenticated %}
 								<div class="box" style="white-space: nowrap">
 									<div class="suggested-item">
 										<div class="d-flex flex-column">
 
-										<a href="#update-profile" data-toggle="modal">Edit profile</a>
+											<a href="#update-profile" data-toggle="modal">Edit profile</a>
+											<hr>
 											<a id="logout-button"  href="{% url 'logout' %}" style="margin-left:-5px">
 												Logout
 											</a>
@@ -99,7 +102,7 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<form id="change-owner-search-form" role="form" enctype="multipart/form-data" method="post" action="{% url 'edit-profile' %}">
+						<form id="change-owner-search-form" role="form" enctype="multipart/form-data" method="post" action="{% url 'profile' %}">
 										<h4>{{ user.first_name }} {{user.last_name}}</h4>
 							{% csrf_token %}
 										<div class="avatar-upload">
@@ -157,7 +160,7 @@
 		};
 
 		function openNav() {
-			document.getElementById("sidebar").style.width = "250px";
+			document.getElementById("sidebar").style.width = "100%";
 		}
 
 		function closeNav() {

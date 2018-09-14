@@ -9,7 +9,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form id="tag-form" role="form" method="post">
+				<form id="tag-form" role="form" action="" onSubmit="search();return false;">
 				<input type="hidden" id="tag-post-id", name="post-id", value="">
 					<div class="form-group">
 						<input type="search" class="form-control" id="tag-search" name="search" placeholder="Who do you want to tag?" ic-post-to="{% url 'search-tag-friends' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#tag-search-result-container" />

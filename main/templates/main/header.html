@@ -37,7 +37,7 @@
 						</a>
 					</li>
 				</ul>
-				<a class="icon" id="site-title">
+				<a class="icon" id="site-title" href="{% url 'index' %}" style="text-decoration: none">
 						tag<span style="color:#3C7A89">@</span>mit
 				</a>
 
@@ -51,7 +51,7 @@
 					-->
 					{% if user.is_authenticated %}
 						<form id="check-for-notifications" role="form" method="post">
-							<input type="hidden" class="form-control" id="update-notifications" ic-post-to="{% url 'get-notifications' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="5s" ic-trigger-on="load" ic-target="#notifications" ic-action="updateCount" />
+							<input type="hidden" class="form-control" id="update-notifications" ic-post-to="{% url 'get-notifications' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="60s" ic-trigger-on="load" ic-poll-repeats: '5' ic-target="#notifications" ic-action="updateCount" />
 						</form>
 						<div class="dropdown" style="display: inline-block;">
 								<button type="button" class="btn btn-outline-notifications btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-right: 10px">

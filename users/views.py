@@ -11,6 +11,12 @@ def save_profile(backend, user, response, *args, **kwargs):
 		sign_up.uuid = response.get('id')
 		sign_up.save()
 		if not sign_up.avatar:
+			# Add new users to tag@mit group
+			try:
+				sign_up.groups.add(CustomGroup.get(name="tag@mit"))
+				sign_up.save()
+			except ObjectDoesNotExist:
+				pass
 			url = 'https://graph.facebook.com/{0}/picture'.format(response['id'])
 			try:
 				response = request('GET', url, params={'type': 'large'})

@@ -7,7 +7,7 @@
 
 {% block content %}
 	{% if user.is_authenticated %}				
-		<div id="starred-posts" class="col-12">
+		<div id="starred-posts" class="col-12 col-md-8">
 			<div class="box message">
 				<h1 style="text-align: center; margin:0px">Your Starred Posts</h1>
 			</div>
@@ -25,6 +25,71 @@
 			</div>
 		</div>
 	{% endif %}
+{% endblock %}
+
+{% block sidebar %}
+	{% if user.is_authenticated %}
+		<div class="box">
+			<div id="userHeader" class="d-flex justify-content-center">
+				<a id="userPicture">
+				<img src="{{ user.avatar.url }}">
+				</a>
+				<div id="userName" class="resize">{{ user.first_name }} {{ user.last_name }}</div>
+			</div>
+			<hr>
+			<span id="userBio"> Bio: {{ user.bio }}</span>
+			<hr>
+			<span id="userSchool">School: {{ user.school }}</span>
+			<hr>
+			{% if user.friends.count > 0 %}
+				Friends ({{ user.friends.count }} total)
+				<div class="d-flex flex-wrap justify-content-center">
+				{% for friend in user.friends.all|slice:"6" %}
+					<a href="{% url 'user-profile' friend.pk %}">
+						<div class="d-flex flex-column align-items-center friend-container">
+							<img src="{{ friend.avatar.url }}" style="width:80px; margin:5px;">
+							{{ friend.first_name }} {{friend.last_name }}
+						</div>
+					</a>
+				{% endfor %}
+				</div>
+				{% if user.friends.count > 6 %}
+				<div class="d-flex justify-content-center">
+					<a href="#friends-modal" data-toggle="modal">view all</a>
+				</div>
+				{% endif %}
+			{% else %}
+			   You don't have any friends yet.
+			{% endif %}
+	{% endif %}
+{% endblock %}
+{% block modals %}
+<!-- Friends Modal -->
+<div class="modal fade" id="friends-modal" tabindex="-1" role="dialog" aria-labelledby="friendsModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 >{{ user.first_name}}'s friends</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="d-flex flex-wrap justify-content-center">
+					{% for friend in user.friends.all %}
+						<a href="{% url 'user-profile' friend.pk %}">
+							<div class="d-flex flex-column align-items-center friend-container">
+								<img src="{{ friend.avatar.url }}" style="width:120px; margin:5px;">
+								{{ friend.first_name }} {{friend.last_name }}
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 {% endblock %}
 
 {% block javascript %}

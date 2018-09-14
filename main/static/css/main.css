@@ -206,6 +206,10 @@ hr {
 	margin-top:-10px;
 }
 
+.suggested-item {
+	font-size: 18px;
+}
+
 .suggested-item a {
 	color:inherit;
 	text-decoration: none;
@@ -366,5 +370,19 @@ hr {
 }
 
 .modal {
-	top: 40px !important
+	top: 40px !important;
+	z-index: 9999999999 !important;
+}
+
+.model-content {
+	border: none !important;
+}
+
+a, a:visited, a:hover, a:active {
+	text-decoration: none;
+	color: inherit;
+}
+
+.friend-container {
+	padding: 5px;
 }

@@ -94,12 +94,14 @@
 							</td>
 							<td>
 								<form class="btn-group float-right" role="group" method="post" action="{% url 'join-group' group.pk %}" style="font-size: 5px; padding-right:0px;">
+									{% csrf_token %}
 									<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
 								</form>
 							</td>
 						</tr>
 					</table>
 				</div>
+				<hr>
 
 			{% endfor %}
 		</div>

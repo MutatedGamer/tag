@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect, get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
 from users.models import *
@@ -198,7 +199,10 @@ def index(request):
 			context['suggested_friends'] = []
 
 			for friend in friends:
-				found_friend = CustomUser.objects.get(uuid=friend['id'])
+				try:
+					found_friend = CustomUser.objects.get(uuid=friend['id'])
+				except ObjectDoesNotExist:
+					continue
 				if found_friend not in request.user.friends.all() and found_friend not in request.user.friend_requests_sent.all() and found_friend not in request.user.friend_requests_received.all():
 					context['suggested_friends'] += [found_friend]
 
