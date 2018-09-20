@@ -112,7 +112,7 @@
 					<form id="change-owner-search-form" role="form" method="post">
 						<input type="hidden" name="group-id" value="{{ group.pk }}" />
 						<div class="form-group">
-							<input type="search" class="form-control" id="change-owner-search" name="search" placeholder="Filter members" ic-post-to="{% url 'change-group-owner-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#change-owner-search-result-container" />
+							<input type="search" onkeydown="if (event.keyCode == 13 || event.which == 13) event.preventDefault();"class="form-control" id="change-owner-search" name="search" placeholder="Filter members" ic-post-to="{% url 'change-group-owner-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#change-owner-search-result-container" />
 						</div>
 					</form>
 					<table class="table table-striped" style="width:100%">
@@ -139,7 +139,7 @@
 					<form id="add-admin-search-form" role="form" method="post">
 						<input type="hidden" name="group-id" value="{{ group.pk }}" />
 						<div class="form-group">
-							<input type="search" class="form-control" id="add-admin-search" name="search" placeholder="Filter members" ic-post-to="{% url 'add-admin-search' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="1s" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#search-result-container" />
+							<input type="search" onkeydown="if (event.keyCode == 13 || event.which == 13) event.preventDefault();"class="form-control" id="add-admin-search" name="search" placeholder="Filter members" ic-post-to="{% url 'add-admin-search' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll="1s" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#search-result-container" />
 						</div>
 					</form>
 					<table class="table table-striped" style="width:100%">
@@ -169,7 +169,7 @@
 					<form id="invite-members-search-form" role="form" method="post" action = "" onSubmit = "search(); return false;">
 						<input type="hidden" name="group-id" value="{{ group.pk }}" />
 						<div class="form-group">
-							<input type="search" class="form-control" id="invite-member-search" name="search" placeholder="Start typing a friend's name" ic-post-to="{% url 'invite-member-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#invite-member-search-result-container" />
+							<input type="search" onkeydown="if (event.keyCode == 13 || event.which == 13) event.preventDefault();"class="form-control" id="invite-member-search" name="search" placeholder="Start typing a friend's name" ic-post-to="{% url 'invite-member-search' %}" ic-poll="1s" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-poll-repeats="1" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#invite-member-search-result-container" />
 						</div>
 					</form>
 					<table class="table table-striped" style="width:100%">

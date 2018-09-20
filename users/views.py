@@ -2,6 +2,8 @@ from django.shortcuts import render
 from .models import CustomUser
 from requests import request, HTTPError
 from django.core.files.base import ContentFile
+from django.core.exceptions import ObjectDoesNotExist
+from main.models import CustomGroup
 
 # Create your views here.
 
@@ -13,7 +15,7 @@ def save_profile(backend, user, response, *args, **kwargs):
 		if not sign_up.avatar:
 			# Add new users to tag@mit group
 			try:
-				sign_up.groups.add(CustomGroup.get(name="tag@mit"))
+				sign_up.groups.add(CustomGroup.objects.get(name="tag@mit"))
 				sign_up.save()
 			except ObjectDoesNotExist:
 				pass

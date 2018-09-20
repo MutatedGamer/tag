@@ -19,9 +19,12 @@
 		<script src="https://intercoolerreleases-leaddynocom.netdna-ssl.com/intercooler-1.1.1.min.js"></script>
 		<script src="{% static 'js/jquery.waypoints.js' %}"></script>
 		<script src="{% static 'js/infinite.js' %}"></script>
+		<script src="{% static 'js/cropper.js' %}"></script>
+		<script src="{% static 'js/jquery-cropper.js' %}"></script>
+		<link href= "{% static 'css/cropper.css' %}" rel="stylesheet">
 		<!-- Font Awesome Icons -->
-		<link href= "{% static "css/fontawesome/all.css" %}" rel="stylesheet">
-		<script src="{% static "js/fontawesome/fontawesome-all.js" %}"></script>
+		<link href= "{% static 'css/fontawesome/all.css' %}" rel="stylesheet">
+		<script src="{% static 'js/fontawesome/fontawesome-all.js' %} "></script>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		<!-- Custom CSS -->
 		<link type="text/css" href="{% static "css/main.css" %}" rel="stylesheet" />
@@ -101,22 +104,24 @@
 						<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
-					<div class="modal-body">
-						<form id="change-owner-search-form" role="form" enctype="multipart/form-data" method="post" action="{% url 'profile' %}">
+					<div class="modal-body update-profile">
+						<form id="update-profile-form" role="form" enctype="multipart/form-data" method="post" action="{% url 'edit-profile' %}">
 										<h4>{{ user.first_name }} {{user.last_name}}</h4>
 							{% csrf_token %}
-										<div class="avatar-upload">
-											<div class="avatar-edit">
-												<input type='file' name="avatar" id="imageUpload" accept=".png, .jpg, .jpeg" />
-												<label for="imageUpload">
-													<i class="fa fa-pencil-alt"></i>
-												</label>
-											</div>
-											<div class="avatar-preview">
-												<div id="imagePreview" style="background-image: url({{ user.avatar.url }});">
-												</div>
-											</div>
+
+							<div class="avatar-upload">
+									<div class="avatar-edit">
+										<input class="photo" id="id_photo" type='file' name="avatar" id="imageUpload" accept=".png, .jpg, .jpeg" />
+										<label for="id_photo">
+											<i class="fa fa-pencil-alt"></i>
+										</label>
+									</div>
+									<div class="avatar-preview">
+										<div id="imagePreview" style="background-image: url({{ user.avatar.url }});">
 										</div>
+									</div>
+								</div>
+
 
 							<div class="form-group row">
 								<label for="textarea" class="col-2 col-form-label">Bio</label> 
@@ -135,6 +140,11 @@
 										<button name="submit" type="submit" class="btn btn-primary">Save</button>
 									</div>
 								</div>
+						<input type="hidden" name="x" id="id_x">
+						<input type="hidden" name="y" id="id_y">
+						<input type="hidden" name="width" id="id_width">
+						<input type="hidden" name="height" id="id_height">
+
 						</form>
 					</div>
 					<div class="modal-footer">
@@ -147,10 +157,12 @@
 
 		{% block modals %}
 		{% endblock %}
+		{% include 'main/modules/crop.html' %}
 		<!-- Facebook JS -->
 		<script src="{% static "js/tag_appid.js" %}"></script>
 		<!-- Custom JS -->
 		<script src="{% static "js/main.js" %}"></script>
+		<script src="{% static "js/crop_image.js" %}"></script>
 		<script>
 		function updateCount() {
 			var $unreadCount = $('.unread').length;
@@ -167,20 +179,8 @@
 			document.getElementById("sidebar").style.width = "0";
 		}
 
-		function readURL(input) {
-			if (input.files && input.files[0]) {
-				var reader = new FileReader();
-				reader.onload = function(e) {
-					$('#imagePreview').css('background-image', 'url('+e.target.result +')');
-					$('#imagePreview').hide();
-					$('#imagePreview').fadeIn(650);
-				}
-				reader.readAsDataURL(input.files[0]);
-			}
-		}
-		$("#imageUpload").change(function() {
-			readURL(this);
-		});
+		
+	
 
 		$(window).on("load", updateCount );
 		</script>

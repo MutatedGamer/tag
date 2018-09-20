@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-	<div id="groups" class="col-12 col-md-8">
+	<div id="groups" class="col-12 {% if user.is_authenticated %}col-md-8{% endif %}">
 		{% if user.is_authenticated %}
 			{% if groups_in.count == 0 %}
 				<div class="box message">
@@ -133,13 +133,13 @@
 						<div class="form-group row">
 							<label class="col-3 col-form-label" for="group-name">Group Name</label> 
 							<div class="col-9">
-								<input id="id-name" name="name" placeholder="My new awesome group!" type="text" class="form-control here" required="required">
+								<input id="id_name" name="name" placeholder="My new awesome group!" type="text" class="form-control here" required="required" maxlength="128">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label for="moderated" class="col-3 col-form-label">Moderated</label> 
 							<div class="col-9">
-								<select id="id-moderated" name="moderated" required="required" class="form-control" aria-describedby="moderatedHelpBlock">
+								<select id="id_moderated" name="moderated" required="required" class="form-control" aria-describedby="moderatedHelpBlock">
 									<option value="True">Yes</option>
 									<option value="False">No</option>
 								</select>
@@ -149,9 +149,14 @@
 						<div class="form-group row">
 							<label class="col-3 col-form-label" for="photo">Photo</label> 
 							<div class="col-9">
-								<input id="photo" name="photo" type="file" class="form-control here" required="required">
+								<input class="photo" id="id_photo" name="photo" type="file" class="form-control here" required="required">
 							</div>
 						</div>
+						<input type="hidden" name="x" id="id_x">
+						<input type="hidden" name="y" id="id_y">
+						<input type="hidden" name="width" id="id_width">
+						<input type="hidden" name="height" id="id_height">
+
 				</div>
 				<div class="modal-footer">
 					<button name="submit" type="submit" class="btn btn-primary">Submit</button>
@@ -171,5 +176,6 @@ $(document).ready(function() {
   }
 
 });
+  </script>
 </script>
 {% endblock %}

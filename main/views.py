@@ -221,12 +221,19 @@ def edit_profile(request):
 
 		school = bleach.clean(request.POST['school'])
 
-		form = CustomUserEditProfileForm({'school': school, 'bio': bio}, request.FILES, instance=request.user)
+		x = bleach.clean(request.POST['x'])
+		y = bleach.clean(request.POST['y'])
+		width  = bleach.clean(request.POST['width'])
+		height  = bleach.clean(request.POST['height'])
+
+		form = CustomUserEditProfileForm({'school': school, 'bio': bio, 'x':x, 'y':y, 'height':height, 'width':width}, request.FILES, instance=request.user)
 
 		if form.is_valid():
 			edit = form.save(commit = False)
 			edit.save()
 			return HttpResponseRedirect(reverse('user-profile', args=(request.user.pk,)))
+		else:
+			print(form.errors)
 
 
 
@@ -259,6 +266,7 @@ def groups(request):
 
 	else:
 		context['groups'] = CustomGroup.objects.all().order_by('-last_activity_date')
+
 	return render(request, 'main/groups.html', context)
 
 @csrf_protect
@@ -560,11 +568,16 @@ def create_group(request):
 		group_name = bleach.clean(group_name)
 		moderated = request.POST['moderated']
 		moderated = bleach.clean(moderated)
+		x = bleach.clean(request.POST['x'])
+		y = bleach.clean(request.POST['y'])
+		width  = bleach.clean(request.POST['width'])
+		height  = bleach.clean(request.POST['height'])
+		
 		if CustomGroup.objects.filter(name = group_name).count() > 0:
 			messages.error(request, "A group with that name already exists. Sorry!")
 			return HttpResponseRedirect(reverse('groups') + '#create-group')
 		else:
-			group_form = CustomGroupForm({'name': group_name, 'moderated': moderated}, request.FILES)
+			group_form = CustomGroupForm({'name': group_name, 'moderated': moderated, 'x':x, 'y':y, 'height':height, 'width':width}, request.FILES)
 			# group = CustomGroup(name=group_name, owner=request.user)
 			if group_form.is_valid():
 				group = group_form.save(commit = False)

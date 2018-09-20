@@ -27,3 +27,5 @@ tag/facebook_secret.txt
 
 *.swp
 aws_secret_key.txt
+
+media/*

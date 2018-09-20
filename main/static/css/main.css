@@ -386,3 +386,11 @@ a, a:visited, a:hover, a:active {
 .friend-container {
 	padding: 5px;
 }
+
+.cropper-view-box {
+	border-radius: 50%;
+}
+
+.cropper-canvas img, .img-container img {
+	border-radius: 0%;
+}

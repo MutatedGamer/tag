@@ -12,7 +12,7 @@
 				<form id="tag-form" role="form" action="" onSubmit="search();return false;">
 				<input type="hidden" id="tag-post-id", name="post-id", value="">
 					<div class="form-group">
-						<input type="search" class="form-control" id="tag-search" name="search" placeholder="Who do you want to tag?" ic-post-to="{% url 'search-tag-friends' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#tag-search-result-container" />
+						<input type="search" onkeydown="if (event.keyCode == 13 || event.which == 13) event.preventDefault();"class="form-control" id="tag-search" name="search" placeholder="Who do you want to tag?" ic-post-to="{% url 'search-tag-friends' %}" ic-on-beforeSend="xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');" ic-trigger-on="keyup" ic-trigger-delay="200ms" ic-target="#tag-search-result-container" />
 					</div>
 				</form>
 				<table class="table table-striped" style="width:100%">
