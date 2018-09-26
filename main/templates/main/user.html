@@ -2,6 +2,10 @@
 {% load static %}
 {% load my_tags %}
 
+{% block title %}
+- {{ userProfile.first_name }} {{ userProfile.last_name }}
+{% endblock %}
+
 {% block references %}
 <link type="text/css" href="{% static 'css/otherProfile.css' %}" rel="stylesheet" />
 {% endblock %}

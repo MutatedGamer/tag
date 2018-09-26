@@ -209,7 +209,7 @@ def index(request):
 		# Update suggested friends and posts to show based on groups.
 		# We add all of the posts in a group to the posts to show the user,
 		# and any members of a group to suggested friends
-		context['suggested_friends'] = CustomUser.objects.filter(groups_in__in = request.user.groups_in.all()).exclude(pk=request.user.pk).difference(request.user.friends.all())
+		context['suggested_friends'] = CustomUser.objects.filter(groups_in__in = request.user.groups_in.all()).exclude(pk=request.user.pk).difference(request.user.friends.all()).difference(request.user.friend_requests_sent.all()).difference(request.user.friend_requests_received.all())
 		posts = posts | Post.objects.filter(group__in = request.user.groups_in.all())
 
 		# Paginate posts

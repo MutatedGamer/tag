@@ -27,7 +27,7 @@ class CustomGroupForm(forms.ModelForm):
 		image = Image.open(to_change.photo)
 		cropped_image = image.crop((x, y, w+x, h+y))
 		resized_image = cropped_image.resize((200, 200), Image.ANTIALIAS)
-		resized_image.save(to_change.photo.path)
+		resized_image.save(to_change.photo.name)
 
 		output = BytesIO()
 		resized_image.save(output, format='PNG', quality=85, optimize = True)

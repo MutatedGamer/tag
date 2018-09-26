@@ -15,8 +15,9 @@ def save_profile(backend, user, response, *args, **kwargs):
 		if not sign_up.avatar:
 			# Add new users to tag@mit group
 			try:
-				sign_up.groups.add(CustomGroup.objects.get(name="tag@mit"))
-				sign_up.save()
+				group = CustomGroup.objects.get(name="tag@mit")
+				group.members.add(sign_up)
+				group.save()
 			except ObjectDoesNotExist:
 				pass
 			url = 'https://graph.facebook.com/{0}/picture'.format(response['id'])

@@ -6,6 +6,10 @@
 <link type="text/css" href="{% static 'css/posts.css' %}" rel="stylesheet" />
 {% endblock %}
 
+{% block title %}
+- Home
+{% endblock %}
+
 {% block content %}
 	{% if user.is_authenticated %}
 	<div id="posts"  class="col-12 col-md-8">
@@ -74,7 +78,9 @@
 					</td>
 				</table>
 			</div>
-			<hr>
+			{% if not forloop.last %}
+				<hr>
+			{% endif %}
 			{% endfor %}
 		</div>
 
@@ -110,7 +116,9 @@
 						</tr>
 					</table>
 				</div>
-				<hr>
+				{% if not forloop.last %}
+					<hr>
+				{% endif %}
 
 			{% endfor %}
 		</div>

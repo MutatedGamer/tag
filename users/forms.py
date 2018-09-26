@@ -49,7 +49,7 @@ class CustomUserEditProfileForm(forms.ModelForm):
 			image = Image.open(to_change.avatar)
 			cropped_image = image.crop((x, y, w+x, h+y))
 			resized_image = cropped_image.resize((200, 200), Image.ANTIALIAS)
-			resized_image.save(to_change.avatar.path)
+			resized_image.save(to_change.avatar.name)
 
 			output = BytesIO()
 			resized_image.save(output, format='PNG', quality=85, optimize = True)
