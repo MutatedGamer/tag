@@ -137,7 +137,7 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'user_friends',]
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email',]
 
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 	'fields': 'id, name, email',
@@ -164,7 +164,7 @@ SOCIAL_AUTH_USER_MODEL = 'users.CustomUser'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -186,7 +186,6 @@ LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
-
 # Force https redirect
 SECURE_SSL_REDIRECT = True
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()

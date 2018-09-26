@@ -1,5 +1,6 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% load shuffle %}
 
 {% block references %}
 <link type="text/css" href="{% static 'css/posts.css' %}" rel="stylesheet" />
@@ -13,7 +14,7 @@
 			<form method="post" action="{% url 'submit-post' %}">
 			 {% csrf_token %}
 				<div class="input-group">
-					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" placeholder="What's on your mind?" style="resize:none"></textarea>
+					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" required placeholder="What's on your mind?" style="resize:none"></textarea>
 					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
 				</div>
 			</form>
@@ -50,15 +51,19 @@
 			</div>
 			{% endif %}
 
-			{% for friend in suggested_friends %}
+			{% for friend in suggested_friends|shuffle|slice:"5" %}
 			<div class="suggested-item">
 				<table width="100%">
 					<tr>
 						<td width="5%">
-							<img src="{{ friend.avatar.url }}">
+							<a href="{% url 'user-profile' friend.pk %}">
+								<img src="{{ friend.avatar.url }}">
+							</a>
 						</td>
 						<td width="95%">
-							{{ friend.first_name }} {{ friend.last_name }}
+							<a href="{% url 'user-profile' friend.pk %}">
+								{{ friend.first_name }} {{ friend.last_name }}
+							</a>
 						</td>
 						<td>
 							<form class="float-right" role="form" style="font-size: 5px; padding-right:0px" method="post" action="{% url 'send-request' friend.pk %}">
@@ -82,15 +87,19 @@
 				Groups that your friends are in will appear here.
 			</div>
 			{% endif %}
-			{% for group in suggested_groups %}
+			{% for group in suggested_groups|shuffle|slice:"5" %}
 				<div class="suggested-item">
 					<table width="100%">
 						<tr>
 							<td width="5%">
-								<img src="{{ group.photo.url }}">
+								<a href="{% url 'group' group.pk %}">
+									<img src="{{ group.photo.url }}">
+								</a>
 							</td>
 							<td width="90%">
-								{{ group.name }}
+								<a href="{% url 'group' group.pk %}">
+									{{ group.name }}
+								</a>
 							</td>
 							<td>
 								<form class="btn-group float-right" role="group" method="post" action="{% url 'join-group' group.pk %}" style="font-size: 5px; padding-right:0px;">

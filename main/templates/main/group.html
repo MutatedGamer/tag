@@ -24,7 +24,7 @@
 			 {% csrf_token %}
 			 <input type="hidden" id="group_id" name="group_id" value="{{ group.pk }}" />
 				<div class="input-group">
-					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="2" placeholder="Submit post to {{ group.name }}" style="resize:none"></textarea>
+					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="2" required placeholder="Submit post to {{ group.name }}" style="resize:none"></textarea>
 					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
 				</div>
 			</form>

@@ -1,0 +1,16 @@
+{% for comment in post.comments.all|slice:"3" reversed %}
+<hr>
+<div class="post-comment">
+	<table width="100%">
+		<tr>
+			<td width="30px">
+				<a href="{% url 'user-profile' comment.poster.pk %}"><img style="width: 100%" src="{{ comment.poster.avatar.url }}"></a>
+			</td>
+			<td style="padding-left: 5px;">
+				<a href="{% url 'user-profile' comment.poster.pk %}" style="font-weight: bold;"> {{ comment.poster.first_name}} {{ comment.poster.last_name }}</a> {{ comment.body }} <br /> <span style="font-size: 10px; font-style: italic;">{{ comment.creation_date }}</span>
+			</td>
+		</tr>
+	</table>
+</div>
+{% endfor %}
+

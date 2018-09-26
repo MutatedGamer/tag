@@ -5,3 +5,4 @@ from main.models import *
 admin.site.register(Post)
 admin.site.register(CustomGroup)
 admin.site.register(Notification)
+admin.site.register(Comment)

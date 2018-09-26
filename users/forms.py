@@ -52,7 +52,7 @@ class CustomUserEditProfileForm(forms.ModelForm):
 			resized_image.save(to_change.avatar.path)
 
 			output = BytesIO()
-			resized_image.save(output, format='PNG', quality=90)
+			resized_image.save(output, format='PNG', quality=85, optimize = True)
 			output.seek(0)
 			to_change.avatar = InMemoryUploadedFile(output, 'ImageField', "%s.png" %to_change.avatar.name, 'image/png', output.__sizeof__(), None)
 

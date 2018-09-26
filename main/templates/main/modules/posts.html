@@ -5,15 +5,58 @@
 			Your friend posted...
 		{% else %}
 			Someone posted
-			{% if page == 'home' %}
-				in <a href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
+			{% if page != 'group' %}
+				in <a style="color: #009dff" href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
 			{% else %}
 				...
 			{% endif %}
 		{% endif %}
 	</div>
 	<hr>
+	{% if not post_page %}	
+		<a href="{% url 'post' post.pk %}" style="display: block; min-width: 100%">
+	{% endif %}
+
 	{{ post.body }}
+
+	{% if not post_page %}	
+		</a>
+	{% endif %}
+	{% if post.comments %}
+			{% if post_page %}
+				{% for comment in post.comments.all reversed %}
+					<hr>
+					<div class="post-comment">
+						<table width="100%">
+							<tr>
+								<td width="30px">
+									<a href="{% url 'user-profile' comment.poster.pk %}"><img style="width: 100%" src="{{ comment.poster.avatar.url }}"></a>
+								</td>
+								<td style="padding-left: 5px;">
+									<a href="{% url 'user-profile' comment.poster.pk %}" style="font-weight: bold;"> {{ comment.poster.first_name}} {{ comment.poster.last_name }}</a> {{ comment.body }} <br /> <span style="font-size: 10px; font-style: italic;">{{ comment.creation_date }}</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="comments" id="comment-container-{{ post.pk }}">
+					{% include 'main/modules/comments.html' %}
+				</div>
+			{% endif %}
+		{% if user.is_authenticated %}
+		<form method="post" action="{% url 'add-comment' %}" class="add-comment-form" id="add-comment-{{ post.pk }}" data-url="{{ post.pk }}" style="display: none; margin-top: 10px;">
+			 {% csrf_token %}
+				<div class="input-group">
+					<textarea maxlength="2500" name='body' class="form-control custom-control autoExpand" id="comment-box" rows="1" placeholder="Start typing a comment" style="resize:none"></textarea>
+					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
+				</div>
+
+		</form>
+		{% endif %}
+
+	{% endif %}
+
 	{% if user.is_authenticated %}
 		<hr>
 		<div class="d-flex justify-content-center justify-content-md-start">
@@ -28,11 +71,14 @@
 			<div class="post-button" onclick="star('{{ post.pk }}')">
 				<i id="star-button-{{ post.pk }}" class="material-icons" style="font-size:24px; {% if post in user.starred_posts.all %}color: gold; {% endif %}">star</i>
 			</div>
-			<a  href="{% url 'post' post.id %}" style="text-decoration: none;">
-				<div class="post-button">
-					<i class="material-icons link" style="font-size: 24px">link</i>
-				</div>
+			<div class="post-button" onclick="comment('{{ post.pk }}')">
+				<i id="star-button-{{ post.pk }}" class="material-icons" style="font-size:24px;">mode_comment</i>
+			</div>
+
+			<a  class="post-button" href="{% url 'post' post.id %}" style="text-decoration: none; color: grey;">
+				<i class="material-icons link" style="font-size: 24px">link</i>
 			</a>
+
 		</div>
 	{% endif %}
 

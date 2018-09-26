@@ -123,7 +123,7 @@ hr {
 
 
 .box h1 {
-	font-size: 16px;
+	font-size: 18px;
 	text-align: center;
 	margin-bottom: 0px;
 }
@@ -207,7 +207,7 @@ hr {
 }
 
 .suggested-item {
-	font-size: 18px;
+	font-size: 16px;
 }
 
 .suggested-item a {
@@ -299,15 +299,19 @@ hr {
 }
 
 .post-button {
-	margin-left: 20px;
-	margin-right: 20px;
+	margin-left: 10px;
+	margin-right: 10px;
 	width: 100px;
 	display: inline-flex;
 	vertical-align: middle !important;
 	justify-content: center;
 	height: 2em;
-	line-height: 2em;
+	line-heit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */ght: 2em;
 	cursor: pointer;
+
 }
 
 
@@ -378,7 +382,7 @@ hr {
 	border: none !important;
 }
 
-a, a:visited, a:hover, a:active {
+#main a, #main a:visited, #main a:hover, #main a:active {
 	text-decoration: none;
 	color: inherit;
 }

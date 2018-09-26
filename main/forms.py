@@ -30,7 +30,7 @@ class CustomGroupForm(forms.ModelForm):
 		resized_image.save(to_change.photo.path)
 
 		output = BytesIO()
-		resized_image.save(output, format='PNG', quality=90)
+		resized_image.save(output, format='PNG', quality=85, optimize = True)
 		output.seek(0)
 		to_change.photo = InMemoryUploadedFile(output, 'ImageField', "%s.png" %to_change.photo.name, 'image/png', output.__sizeof__(), None)
 

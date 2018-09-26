@@ -96,7 +96,7 @@ class TagFriends(View):
 		query = request.POST.get('search', None)
 		if query:
 			items = items.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(full_name__icontains=query))
-		items = items.difference(post.tag.annotate(full_name=Concat('first_name', Value(' '), 'last_name')).all())
+		#items = items.difference(post.tag.annotate(full_name=Concat('first_name', Value(' '), 'last_name')).all())
 		context = {'friends': items, 'post': post}
 
 		rendered_template = template.render(context, request)
@@ -147,6 +147,30 @@ def star(request):
 	
 	return JsonResponse({'result': result})
 
+@csrf_protect
+@login_required
+def add_comment(request):
+	if request.method != 'POST':
+		return HttpResponseRedirect(reverse('index'))
+
+	post = get_object_or_404(Post, pk=int(request.POST['post-id']))
+
+	if (post.group == None and post not in request.user.posts_to_show.all()) or (post.group != None and request.user not in post.group.members.all() ):
+		print('rejected')
+		return HttpResponseRedirect(reverse('index'))
+	
+	body = bleach.clean(request.POST['body'])
+
+	new_comment = Comment(poster = request.user, post = post, body = body)
+
+	new_comment.save()
+
+	context = dict()
+	context['post'] = post
+	template = loader.get_template('main/modules/comments.html')
+	rendered_template = template.render(context, request)
+	return HttpResponse(rendered_template, content_type='text/html')
+
 
 @csrf_protect
 @login_required
@@ -176,10 +200,19 @@ def index(request):
 	context = dict()
 	context['page'] = 'home'
 	if request.user and not request.user.is_anonymous:
-		posts = request.user.posts_to_show.all()
+		# Liked posts
 		context['liked_posts'] = request.user.liked_posts.all()
-		for group in request.user.groups_in.all():
-			posts = posts | group.posts.all()
+
+		# To begin, posts include all posts friends have made
+		posts = request.user.posts_to_show.all()
+
+		# Update suggested friends and posts to show based on groups.
+		# We add all of the posts in a group to the posts to show the user,
+		# and any members of a group to suggested friends
+		context['suggested_friends'] = CustomUser.objects.filter(groups_in__in = request.user.groups_in.all()).exclude(pk=request.user.pk).difference(request.user.friends.all())
+		posts = posts | Post.objects.filter(group__in = request.user.groups_in.all())
+
+		# Paginate posts
 		posts = posts.order_by('-added')
 		page = request.GET.get('page', 1)
 		paginator = Paginator(posts, 3)
@@ -191,27 +224,12 @@ def index(request):
 			posts = paginator.page(paginator.num_pages)
 		context['posts'] = posts
 
-		social_user = request.user.social_auth.filter(provider = 'facebook').first()
-		if social_user:
-			url = u'https://graph.facebook.com/{0}/friends?fields=id,name&access_token={1}'.format(social_user.uid, social_user.extra_data['access_token'],)
-			content = requests.get(url)
-			friends = json.loads(content.content.decode('utf-8'))['data']
-			context['suggested_friends'] = []
-
-			for friend in friends:
-				try:
-					found_friend = CustomUser.objects.get(uuid=friend['id'])
-				except ObjectDoesNotExist:
-					continue
-				if found_friend not in request.user.friends.all() and found_friend not in request.user.friend_requests_sent.all() and found_friend not in request.user.friend_requests_received.all():
-					context['suggested_friends'] += [found_friend]
-
 		# Get suggested groups
-		context['suggested_groups'] = request.user.groups_in.all() 
-		for friend in request.user.friends.all():
-			context['suggested_groups'] = context['suggested_groups'] | friend.groups_in.all()
-		context['suggested_groups'] = context['suggested_groups'].difference(request.user.groups_in.all())
+		context['suggested_groups'] = CustomGroup.objects.none()
+		context['suggested_groups'] = CustomGroup.objects.filter(members__in = request.user.friends.all()).difference(request.user.groups_in.all())
 	return render(request, 'main/index.html', context)
+
+
 
 @login_required
 @csrf_protect
@@ -240,7 +258,8 @@ def edit_profile(request):
 def post(request, post_id):
 	context = dict()
 	context['page'] = 'groups'
-	posts = Post.objects.filter(pk=post_id)
+	context['post_page'] = True
+	posts = Post.objects.filter(pk=post_id).prefetch_related('comments')
 	if request.user.is_authenticated:
 		notifications = Notification.objects.filter(receiver = request.user, for_post__in = posts)
 		for notification in notifications:
@@ -349,7 +368,11 @@ def submit_post_to_group(request, group_id):
 			messages.error(request, "You cannot post in groups you are not a part of.")
 			return HttpResponseRedirect(reverse('index'))
 
-		post = Post(body = bleach.clean(request.POST['body']), group=group)
+		body = bleach.clean(request.POST['body'])
+		if body == '' or body == None:
+			messages.error(request, 'Post cannot be blank')
+			return HttpResponseRedirect(reverse('group', args=(group.pk,)))
+		post = Post(body = body,  group=group)
 		post.save()
 		
 		if group.moderated:
@@ -388,7 +411,6 @@ def approve_posts(request, group_id):
 	notification = Notification.objects.get(for_group = group, receiver = request.user, action="posts_to_approve")
 	notification.read = True
 	notification.save()
-	context = dict()
 	context['group'] = group
 	context['posts'] = group.to_approve.all()
 	return render(request, 'main/approve.html', context)
@@ -534,7 +556,7 @@ def make_group_unmoderated(request, group_id):
 @login_required
 def join_group(request, group_id):
 	group = get_object_or_404(CustomGroup, pk=group_id)
-	if request.user.is_authenticated and request.user not in group.members.all():
+	if request.user.is_authenticated and not request.user.is_anonymous and request.user not in group.members.all():
 		group.members.add(request.user)
 	
 	return HttpResponseRedirect(reverse('group', args=(group.pk,)))
@@ -545,7 +567,7 @@ def leave_group(request, group_id):
 	if request.user == group.owner:
 		messages.error(request, 'You cannot leave a group you are the owner of.')
 		return HttpResponseRedirect(reverse('group', args=(group.pk,)))
-	if request.user.is_authenticated and request.user in group.members.all():
+	if request.user.is_authenticated and not request.user.is_anonymous and request.user in group.members.all():
 		group.members.remove(request.user)
 		if request.user in group.admins.all():
 			group.admins.remove(request.user)
@@ -556,7 +578,7 @@ def leave_group(request, group_id):
 def profile(request):
 	context = dict()
 	context['page'] = 'profile'
-	if request.user.is_authenticated:
+	if request.user.is_authenticated and not request.user.is_anonymous:
 		context['posts'] = request.user.starred_posts.all().order_by('-added')
 	return render(request, 'main/profile.html', context)
 
@@ -597,24 +619,26 @@ def user_profile(request, user_id):
 	context = dict()
 	context['page'] = 'profile'
 
-	if userProfile in request.user.friends.all():
-		context['is_friend'] = True
-	else:
-		context['is_friend'] = False
+	if request.user.is_authenticated and not request.user.is_anonymous:
+		if userProfile in request.user.friends.all():
+			context['is_friend'] = True
+		else:
+			context['is_friend'] = False
 
 
-	if userProfile in request.user.friend_requests_sent.all():
-		context['sent_request'] = True
-	else:
-		context['sent_request'] = False
+		if userProfile in request.user.friend_requests_sent.all():
+			context['sent_request'] = True
+		else:
+			context['sent_request'] = False
 
 
-	if userProfile in request.user.friend_requests_received.all():
-		context['received_request'] = True
-	else:
-		context['received_request'] = False
+		if userProfile in request.user.friend_requests_received.all():
+			context['received_request'] = True
+		else:
+			context['received_request'] = False
 
-	context['userProfileFriends'] = userProfile.friends.all()
+		context['userProfileFriends'] = userProfile.friends.all()
+	
 	context['userProfile'] = userProfile
 
 	return render(request, 'main/user.html', context)
@@ -625,7 +649,7 @@ def send_friend_request(request, user_id):
 	# The user receiving the friend request
 	userProfile = get_object_or_404(CustomUser, pk=user_id)
 	if userProfile in request.user.friend_requests_sent.all():
-		messages.error('Something went wrong')
+		messages.error(request, 'Something went wrong')
 		return HttpResponseRedirect(reverse('index'))
 	# Add to the logged in user's list of friend requests sent.
 	# Automatically adds logged in user to list of friend requests received
@@ -644,7 +668,7 @@ def remove_friend(request, user_id):
 	userProfile = get_object_or_404(CustomUser, pk=user_id)
 
 	if userProfile not in request.user.friends.all():
-		messages.error('Friend not found')
+		messages.error(request, 'Friend not found')
 		return HttpResponseRedirect(reverse('index'))
 	
 	request.user.friends.remove(userProfile)
@@ -680,6 +704,9 @@ def respond_to_friend_request(request, user_id):
 def submit_post(request):
 	if request.method == 'POST':
 		body = bleach.clean(request.POST['body'])
+		if body == '' or body == None:
+			messages.error(request, 'Post cannot be blank')
+			return HttpResponseRedirect(reverse('index'))
 
 		# Make a new post object
 		post = Post(body = body)

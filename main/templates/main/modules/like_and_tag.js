@@ -25,6 +25,15 @@ function tagFriendAJAX(post_pk, friend_pk) {
 	});
 };
 
+$('#tag_modal').on('hidden.bs.modal', function(e) {
+	$('#tag-search').val('');
+	$('#tag-search-result-container').html('');
+});
+
+$('#tag_modal').on('shown.bs.modal', function(e) {
+	$('#tag-search').keyup();
+});
+
 function like(pk) {
 	function csrfSafeMethod(method) {
 		// these HTTP methods do not require CSRF protection
@@ -82,4 +91,37 @@ function star(pk) {
 	});
 };
 
+function comment(pk) {
+	var form = $('#add-comment-' + pk);
+		form.fadeIn(250);
+}
+
+$('.add-comment-form').submit(function(e) {
+	e.preventDefault();
+	var $pk = $(this).attr('data-url');
+
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	// send ajax
+	$.ajax({
+		beforeSend: function(xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			},
+		url: '{% url "add-comment" %}', // url where to submit the request
+		type : "POST", // type of action POST || GET
+		dataType : 'html', // data type
+		data : { 'post-id': $(this).attr('data-url'), 'body': $(this).find("textarea").val() },
+		success : function(data) {
+			var toAppend = $('#comment-container-' + $pk);
+			toAppend.html(data);
+
+		},
+	});
+	$(this).find("textarea").val('') 
+
+});
 

@@ -44,3 +44,12 @@ class Notification(models.Model):
 
 	class Meta:
 		ordering = ['-creation_date']
+
+class Comment(models.Model):
+	poster = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name = 'comments')
+	creation_date = models.DateTimeField(auto_now_add = True)
+	body = models.CharField(max_length = 2500, blank = True, default = None, null = True)
+	
+	class Meta:
+		ordering = ['-creation_date',]
