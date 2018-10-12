@@ -5,7 +5,7 @@
 			Your friend posted...
 		{% else %}
 			Someone posted
-			{% if page != 'group' %}
+			{% if page != 'groups' %}
 				in <a style="color: #009dff" href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
 			{% else %}
 				...

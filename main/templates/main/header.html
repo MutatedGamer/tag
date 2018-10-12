@@ -73,12 +73,19 @@
 						</div>
 					{% else %}
 						<div id="login-area" style="white-space: nowrap">
+                            <!---
 							<a href="{% url 'social:begin' 'facebook' %}">
 								<div class="login-button">
 									<div class="login-facebook-icon">f</div>
 									<div class="login-facebook-text">Login with Facebook</div>
 								</div>
 							</a>
+                            -->
+                            <a href="{% url 'oidc_authentication_init' %}">
+                                <div class="login-button">
+                                    <div class="mit-login-text">Login with certificate</div>
+                                </div>
+                            </a>
 						</div>
 					{% endif %}
 				</span>

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 	'users.apps.UsersConfig',
 	'main.apps.MainConfig',
 	'storages',
+    'mozilla_django_oidc',
 ]
 
 MIDDLEWARE = [
@@ -132,6 +133,8 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
 
+    'users.oid.MITOIDCAB',
+
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -143,6 +146,21 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 	'fields': 'id, name, email',
 }
 
+#OIDC Config
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_RP_IDP_SIGN_KEY = {"e":"AQAB","n":"pkkVnbFUJXn6Za9zOoJpmnlZFDocyOAKQFJli3PuYaMkCS1UI0BT2Mt0NkeFw84hiMhUvVEFpUPT4CytvVccNjSbCEBdm_TMCZj0hbISLtjO_CUi7NbyzINCw2KpXpxFFVt3sJmKidCREXy06mOrCS66KE2t8oxnPpEWbma-fXLH13i1YSJMOePJvx3piAQVy76Os9NV8dPlWf5wyjSP8OooSc_ZX6tq11IRfQPTKuGyNunLeWDHvY1rwsAtGO3iwcnthP3yMeAmhg69y-sBcWn5_GGRbFh1sEk18Yl6d7X5zqSQWB_9a-UaeAplCJmD3tUEWDu9e-1nDdmwK6sXtw","kty":"RSA","kid":"rsa1"}
+#OIDC_OP_JWKS_ENDPOINT = 'http://oidc.mit.edu/jwk'
+OIDC_OP_AUTHORIZATION_ENDPOINT = 'https://oidc.mit.edu/authorize'
+OIDC_OP_TOKEN_ENDPOINT = 'https://oidc.mit.edu/token'
+OIDC_OP_USER_ENDPOINT = 'https://oidc.mit.edu/userinfo'
+OIDC_RP_SCOPES = 'profile openid email'
+
+with open('tag/mit_id.txt') as f:
+	OIDC_RP_CLIENT_ID = f.read().strip()
+
+
+with open('tag/mit_secret.txt') as f:
+	OIDC_RP_CLIENT_SECRET = f.read().strip()
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
@@ -177,35 +195,37 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = 'static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = 'media/'
 
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'index'
-LOGOUT_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
+'''
 # Force https redirect
 SECURE_SSL_REDIRECT = True
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Force HTTPS in the final URIs
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
-
-AWS_STORAGE_BUCKET_NAME = 'elasticbeanstalk-us-east-2-301906610566'
-AWS_S3_REGION_NAME = 'us-east-2'  # e.g. us-east-2
-AWS_ACCESS_KEY_ID = 'AKIAJHDEF6QMN2NUI4IA'
-with open('aws_secret_key.txt') as f:
-	AWS_SECRET_ACCESS_KEY = f.read().strip()
+'''
+#AWS_STORAGE_BUCKET_NAME = 'elasticbeanstalk-us-east-2-301906610566'
+#AWS_S3_REGION_NAME = 'us-east-2'  # e.g. us-east-2
+#AWS_ACCESS_KEY_ID = 'AKIAJHDEF6QMN2NUI4IA'
+#with open('aws_secret_key.txt') as f:
+#	AWS_SECRET_ACCESS_KEY = f.read().strip()
 
 # Tell django-storages the domain to use to refer to static files.
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-
+#AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 # Tell the staticfiles app to use S3Boto3 storage when writing the collected static files (when
 # you run `collectstatic`).
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-STATICFILES_LOCATION = 'static'
-STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-MEDIAFILES_LOCATION = 'media'
-DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+#STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#STATICFILES_LOCATION = 'static'
+#STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+#MEDIAFILES_LOCATION = 'media'
+#DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'

@@ -5,10 +5,10 @@
 		<tr>
 			<td style="min-width: 50px"><img src="{{ friend.avatar.url }}" width="100%"></td>
 			<td style="width: 75%">{{ friend.first_name }} {{ friend.last_name }}</td>
-			{% if not friend in post.tag.all %}
-			<td style="width: 10%"><button type="button" onclick="tagFriendAJAX('{{ post.pk }}', '{{ friend.pk }}')" class="btn btn-primary">Tag</button></td>
+			{% if not friend in tagged_friends %}
+			<td style="width: 10%; text-align: right;"><button type="button" onclick="tagFriendAJAX('{{ post.pk }}', '{{ friend.pk }}')" class="btn btn-primary">Tag</button></td>
 			{% else %}
-			<td><button type="button" class="btn btn-danger">Already Tagged!</button></td>
+			<td style="width:10%; text-align: right;"><button type="button" class="btn btn-primary" disabled>Tagged!</button></td>
 			{% endif %}
 		</tr>
 		{% endfor %}

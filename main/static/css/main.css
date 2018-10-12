@@ -254,6 +254,18 @@ hr {
   border: 1px solid #3b5998;
 }
 
+.mit-login-text {
+    color: #3C7A89;
+    font-size: 16px;
+    font-family: HelveticaNeueW01-55Roma, HelveticaNeueW02-55Roma, HelveticaNeueW10-55Roma, sans-serif;
+    font-weight: 400;
+    line-height: 35px;
+    text-align: center;
+    width: 160px;
+    height: 35px;
+    border: none;
+}
+
 .form-control:focus {
 	box-shadow: none!important
 

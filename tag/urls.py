@@ -19,5 +19,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
 	path('', include('main.urls')),
+    path('oidc', include('mozilla_django_oidc.urls')),
     path('admin/', admin.site.urls),
 ]

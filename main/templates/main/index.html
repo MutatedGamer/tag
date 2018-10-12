@@ -18,7 +18,7 @@
 			<form method="post" action="{% url 'submit-post' %}">
 			 {% csrf_token %}
 				<div class="input-group">
-					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" required placeholder="What's on your mind?" style="resize:none"></textarea>
+					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" required placeholder="Post to only your friends" style="resize:none"></textarea>
 					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
 				</div>
 			</form>

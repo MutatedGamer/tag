@@ -24,6 +24,8 @@ db.sqlite3
 tag/secret_key.txt
 tag/facebook_appid.txt
 tag/facebook_secret.txt
+tag/mit_id.txt
+tag/mit_secret.txt
 
 *.swp
 aws_secret_key.txt

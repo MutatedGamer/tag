@@ -98,6 +98,10 @@ class TagFriends(View):
 			items = items.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(full_name__icontains=query))
 		#items = items.difference(post.tag.annotate(full_name=Concat('first_name', Value(' '), 'last_name')).all())
 		context = {'friends': items, 'post': post}
+		tagged_friends_notifs = Notification.objects.filter(sender = request.user, action = 'tagged', for_post = post)
+		tagged_friends = CustomUser.objects.filter(notifications__in = tagged_friends_notifs)
+		tagged_friends = CustomUser.objects.filter(notifications__in = tagged_friends_notifs)
+		context['tagged_friends'] = tagged_friends
 
 		rendered_template = template.render(context, request)
 		return HttpResponse(rendered_template, content_type='text/html')
@@ -438,6 +442,7 @@ def approve_posts_response(request, group_id):
 		response = {'result': 'approved'}
 	elif 'remove' in request.POST:
 		group.to_approve.remove(post)
+		post.delete()
 		group.save()
 		response = {'result': 'deleted'}
 	
@@ -708,9 +713,14 @@ def submit_post(request):
 			messages.error(request, 'Post cannot be blank')
 			return HttpResponseRedirect(reverse('index'))
 
+		if len(request.user.friends.all()) == 0:
+			messages.error(request, "You don't currently have any friends who can see your post! Did you mean to post to a group instead?")
+			return HttpResponseRedirect(reverse('index'))
+
 		# Make a new post object
 		post = Post(body = body)
 		post.save()
+
 
 		# Check if we're not in a group
 		if 'group-name' not in request.POST:
