@@ -195,37 +195,36 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_ROOT = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#STATIC_ROOT = 'static/'
 MEDIA_URL = '/media/'
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_ROOT = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_ROOT = 'media/'
 
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
-'''
+
 # Force https redirect
 SECURE_SSL_REDIRECT = True
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Force HTTPS in the final URIs
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
-'''
-#AWS_STORAGE_BUCKET_NAME = 'elasticbeanstalk-us-east-2-301906610566'
-#AWS_S3_REGION_NAME = 'us-east-2'  # e.g. us-east-2
-#AWS_ACCESS_KEY_ID = 'AKIAJHDEF6QMN2NUI4IA'
-#with open('aws_secret_key.txt') as f:
-#	AWS_SECRET_ACCESS_KEY = f.read().strip()
+AWS_STORAGE_BUCKET_NAME = 'elasticbeanstalk-us-east-2-301906610566'
+AWS_S3_REGION_NAME = 'us-east-2'  # e.g. us-east-2
+AWS_ACCESS_KEY_ID = 'AKIAJHDEF6QMN2NUI4IA'
+with open('aws_secret_key.txt') as f:
+	AWS_SECRET_ACCESS_KEY = f.read().strip()
 
 # Tell django-storages the domain to use to refer to static files.
-#AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 # Tell the staticfiles app to use S3Boto3 storage when writing the collected static files (when
 # you run `collectstatic`).
-#STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-#STATICFILES_LOCATION = 'static'
-#STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-#MEDIAFILES_LOCATION = 'media'
-#DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
