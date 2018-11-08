@@ -410,3 +410,19 @@ hr {
 .cropper-canvas img, .img-container img {
 	border-radius: 0%;
 }
+
+.show-hide-parent-button {
+	color: #3C7A89;
+	cursor: pointer;
+}
+
+.parent-body {
+	font-size:12px;
+	padding-left:25px;
+}
+
+.parent-container {
+	display: none;
+	height:auto;
+}
+

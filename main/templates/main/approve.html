@@ -13,10 +13,12 @@
 {% block content %}
 	<div id="posts" class="col-12">
 		<div class="box">
+      <a href="{% url 'group' group.pk %}">
 			<div class="groupTitle">
 				<img src="{{ group.photo.url }}">
 				{{ group.name }} Pending Posts
 			</div>
+      </a>
 		</div>
 		<div class="box">
 			<table class="table table-striped table-bordered" width="100%">

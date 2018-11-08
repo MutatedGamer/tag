@@ -1,4 +1,4 @@
-{% if items %}
+{% if items|length > 0 %}
 	{% for item in items %}
 		{% if item.action == "friend_request_received" %}
 		<a class="dropdown-item {% if not item.read %}unread{% endif %}" href="{% url 'user-profile' item.sender.pk %}">
@@ -7,6 +7,15 @@
 					<td style="padding-right:9px;"><img src="{{ item.sender.avatar.url }}" style="width:30px; height:30px"></td>
 					<td>{{ item.sender.first_name }} {{ item.sender.last_name }} sent you a friend request.</td>
 				</tr>
+                <tr>
+                    <td colspan="2" style="padding-top: 10px;">
+                        <form method="post" ic-post-to="{% url 'respond-request' item.sender.pk %}" ic-action="remove" ic-action-target="closest .dropdown-item" class="d-flex justify-content-around">
+                            {% csrf_token %}
+                            <button class="btn btn-success" name="accept" type="submit">Accept</button>
+                            <button class="btn btn-danger" name="decline" type="submit">Decline</button>
+                        </form>
+                    </td>
+                </tr>
 			</table>
 			<!-- Not working yet
 			<br />
@@ -50,4 +59,9 @@
 
 		<div class="dropdown-divider"></div>
 	{% endfor %}
+{% else %}
+  <a class="dropdown-item">
+    No new notifications!
+  </a>
 {% endif %}
+

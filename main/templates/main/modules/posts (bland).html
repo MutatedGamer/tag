@@ -1,56 +1,31 @@
 {% load readmore %}
 {% for post in posts %}
 <div class="box infinite-item">
-  <div class="box-header">
+  {% if post.reply_to %}
+    <div class="box-header">
+      In response to...
+    </div>
+    <hr>
+    {{ post.reply_to.body|readmore:15}}
+    <hr>
+  {% endif %}
+	<div class="box-header">
 		{% if not post.group %}
 			Your friend posted...
-    {% else %}
-      {% if not post.reply_to %}
-      Someone posted
-      {% else %}
-       Someone replied to a post
-      {% endif%}
-      {% if page != 'groups' %}
-        in <a style="color: #009dff" href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
-      {% else %}
-        ...
-      {% endif %}
+		{% else %}
+			Someone posted
+			{% if page != 'groups' %}
+				in <a style="color: #009dff" href="{% url 'group' post.group.pk %}">{{ post.group.name }}</a>
+			{% else %}
+				...
+			{% endif %}
 		{% endif %}
-    {% if post.reply_to %}
-    <!--
-      <div class="post-button" onclick="showParent('{{ post.pk }}')">
-        <i class="material-icons link" style="font-size: 24px">unfold_more</i>
-      </div>
-    -->
-    <span class='show-hide-parent-button' id='show-hide-parent-button-{{ post.pk }}' onclick="showHideParent('{{ post.pk }}')">&nbsp;&nbsp;&nbsp;[show original post]</span>
-    {% endif %}
-  </div>
-
-    {% if post.reply_to %}
-    <div class="parent-container" id="parent-container-{{post.pk}}">
-      <!--
-      <div class="box-header">
-        In response to...
-      </div>
-      -->
-      <hr>
-      <p class='parent-body'>
-        {{ post.reply_to.body }}
-      </p>
-    </div>
-  {% endif %}
-	
+	</div>
 	<hr>
-
-  {% if post.reply_to %}
-  <a href="{% url 'post' post.reply_to.pk %}" style="color: #009dff">
-    @{{ post.reply_to.pk }}
-  </a>
-  {% endif %}
-
 	{% if not post_page %}	
-		<a href="{% url 'post' post.pk %}">
+		<a href="{% url 'post' post.pk %}" style="display: block; min-width: 100%">
 	{% endif %}
+
 	{{ post.body }}
 
 	{% if not post_page %}	
@@ -82,7 +57,7 @@
 		<form method="post" action="{% url 'add-comment' %}" class="add-comment-form" id="add-comment-{{ post.pk }}" data-url="{{ post.pk }}" style="display: none; margin-top: 10px;">
 			 {% csrf_token %}
 				<div class="input-group">
-					<textarea maxlength="2500" name='body' class="form-control custom-control autoExpand" id="comment-box" rows="1" placeholder="Start typing a comment"></textarea>
+					<textarea maxlength="2500" name='body' class="form-control custom-control autoExpand" id="comment-box" rows="1" placeholder="Start typing a comment" style="resize:none"></textarea>
 					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
 				</div>
 

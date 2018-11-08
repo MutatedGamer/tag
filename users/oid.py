@@ -11,7 +11,7 @@ class MITOIDCAB(OIDCAuthenticationBackend):
         user.last_name = claims.get('family_name', '')
         try:
             group = CustomGroup.objects.get(name="tag@mit")
-            group.members.add(sign_up)
+            group.members.add(user)
             group.save()
         except ObjectDoesNotExist:
             pass

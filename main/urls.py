@@ -17,6 +17,7 @@ urlpatterns = [
 	path('like', views.like, name='like-post'),
 	path('tag', views.tag, name='tag-friend'),
 	path('star', views.star, name='star-post'),
+    path('make_reply_modal', views.make_reply_modal, name='make-reply-modal'),
 	path('add_comment', views.add_comment, name='add-comment'),
 	path('notifications', GetNotifications.as_view(), name='notifications'),
 	path('search/change_group_owner_search', ChangeOwnerSearch.as_view(), name='change-group-owner-search'),

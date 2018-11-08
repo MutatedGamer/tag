@@ -1,0 +1,10 @@
+var $invite_member_url = '{% url "invite-member" group.pk %}';
+var $make_unmod_url= '{% url "make-group-unmoderated" group.pk %}';
+var $delete_group_url = '{% url "delete-group" group.pk %}';
+var $change_owner_url = '{% url "change-group-owner" group.pk %}';
+var $remove_admin_url = '{% url "remove-admin" group.pk %}';
+var $add_admin_url = '{% url "add-admin" group.pk %}';
+var $group_pk = {{ group.pk }};
+var $group_name = "{{ group.name|safe }}";
+var $group_url = '{% url "group" group.pk %}';
+var $groups_url = '{% url "groups" %}';

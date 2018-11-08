@@ -17,6 +17,7 @@
 {% block modals %}
 	{% if user.is_authenticated %}
 		{% include 'main/modules/tag_modal.html' %}
+    {% include 'main/modules/reply_modal.html' %}
 	{% endif %}
 {% endblock %}
 
@@ -24,7 +25,8 @@
 {% if user.is_authenticated and not user.is_anonymous %}
 <script src="{% static 'js/csrftoken.js' %}"></script>
 <script>
-	{% include 'main/modules/like_and_tag.js' %}
+  {% include 'main/modules/urls.js' %}
 </script>
+<script src="{% static 'js/post_functions.js' %}"></script>
 {% endif %}
 {% endblock %}

@@ -118,7 +118,7 @@
 
 							<div class="avatar-upload">
 									<div class="avatar-edit">
-										<input class="photo" id="id_photo" type='file' name="avatar" id="imageUpload" accept=".png, .jpg, .jpeg" />
+										<input onclick="this.value=null;" class="photo" id="id_photo" type='file' name="avatar" id="imageUpload" accept=".png, .jpg, .jpeg" />
 										<label for="id_photo">
 											<i class="fa fa-pencil-alt"></i>
 										</label>
@@ -133,13 +133,13 @@
 							<div class="form-group row">
 								<label for="textarea" class="col-2 col-form-label">Bio</label> 
 									<div class="col-10">
-										<textarea id="bio" name="bio" cols="40" rows="5" required="required" class="form-control">{{ user.bio }}</textarea>
+										<textarea id="bio" name="bio" cols="40" rows="5" class="form-control">{{ user.bio }}</textarea>
 									</div>
 								</div>
 								<div class="form-group row">
 									<label for="school" class="col-2 col-form-label">School</label> 
 									<div class="col-10">
-										<input id="school" name="school" type="text" required="required" class="form-control here" value="{{ user.school }}">
+										<input id="school" name="school" type="text" class="form-control here" value="{{ user.school }}">
 									</div>
 								</div>
 								<div class="form-group row">

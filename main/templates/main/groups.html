@@ -38,27 +38,29 @@
 				{% endfor %}
 			{% endif %}
 		{% endif %}
-		<div class="box box-title">
-			<h1>Browse Groups</h1>
-		</div>
+    {% if groups.count != 0 %}
+      <div class="box box-title">
+        <h1>Browse Groups</h1>
+      </div>
 
-		{% for group in groups %}
-		<div class="box" style="padding: 5px 30px;">
-		<a href="{% url 'group' group.pk %}">
-		<table class="groupTitle" width="100%">
-			<tr>
-				<td style="width: 20%">
-					<img src="{{ group.photo.url }}">
-				</td>
-				<td>
-					{{ group.name }}
-				</td>
-			</tr>
-		</table>
-		</a>
-	</div>
+      {% for group in groups %}
+      <div class="box" style="padding: 5px 30px;">
+      <a href="{% url 'group' group.pk %}">
+      <table class="groupTitle" width="100%">
+        <tr>
+          <td style="width: 20%">
+            <img src="{{ group.photo.url }}">
+          </td>
+          <td>
+            {{ group.name }}
+          </td>
+        </tr>
+      </table>
+      </a>
+    </div>
 
-	{% endfor %}
+    {% endfor %}
+  {% endif %}
 	</div>
 {% endblock %}
 
@@ -160,7 +162,7 @@
 						<div class="form-group row">
 							<label class="col-3 col-form-label" for="photo">Photo</label> 
 							<div class="col-9">
-								<input class="photo" id="id_photo" name="photo" type="file" class="form-control here" required="required" accept="image/jpeg, image/png, image/jpg">
+								<input onclick="this.value=null;" class="photo" id="id_photo" name="photo" type="file" class="form-control here" required="required" accept="image/jpeg, image/png, image/jpg">
 							</div>
 						</div>
 						<input type="hidden" name="x" id="id_x">

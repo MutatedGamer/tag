@@ -1,0 +1,40 @@
+<div class="modal-header">
+  <h5>Reply to Post</h5>
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body" id="reply-modal-body">
+  <div class="box">
+    <div class="box-header">
+      Replying to post {% if parent.group %}
+          in <a style="color: #009dff" href="{% url 'group' parent.group.pk %}">{{ parent.group.name }}</a>
+      {% endif %}
+    </div>
+    <hr>
+  {% if parent.reply_to %}
+  <a href="{% url 'post' parent.reply_to.pk %}" style="color: #009dff">
+    @{{ parent.reply_to.pk }}
+  </a>
+  {% endif %}
+
+
+    {{ parent.body }}
+  </div>
+  <div id="compose" class="box">
+			<form id="reply-form" method="post" action="{% url 'submit-post-to-group' group.pk %}">
+			 {% csrf_token %}
+			 <input type="hidden" id="group_id" name="group_id" value="{{ group.pk }}" />
+       <input type="hidden" id="parent-id" name="parent-id" value="{{ parent.pk }}" />
+				<div class="input-group">
+					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="2" required placeholder="Start typing your anonymous reply!" style="resize:none"></textarea>
+					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
+				</div>
+			</form>
+		</div>
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+</div>
+

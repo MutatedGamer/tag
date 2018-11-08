@@ -11,143 +11,195 @@
 {% endblock %}
 
 {% block content %}
-	{% if user.is_authenticated %}
-	<div id="posts"  class="col-12 col-md-8">
-		<div class="infinite-container">
-		<div id="compose" class="box">
-			<form method="post" action="{% url 'submit-post' %}">
-			 {% csrf_token %}
-				<div class="input-group">
-					<textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" required placeholder="Post to only your friends" style="resize:none"></textarea>
-					<button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
-				</div>
-			</form>
-		</div>
-		{% include 'main/modules/posts.html' %}
-		</div>
-		{% if posts.has_next %}
-		<span class="d-none">	<a class="infinite-more-link" href="?page={{ posts.next_page_number }}">more</a></span>
-		{% endif %}
-		<div class="box loading" style="display:none">
-			Loading...
-		</div>
-	</div>
+    {% if user.is_authenticated %}
+      {% if new %}
+      <div class="modal show" id="new-user-modal">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Welcome to tag@mit!</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p>Welcome to tag@mit! You have automatically joined the tag@mit group, but feel free to browse/join/create other groups <a style="color: #009dff;" href="{% url 'groups' %}">here</a>. On your homepage you will see posts from any groups you are a member of. You can like, star, comment on, and tag friends in these posts. <br /> <br /> To make a post, go to a group's page. If the group is moderated, it will be posted if an admin approves it. Otherwise, the post will appear as soon as you submit it. <br /> <br /> If you have any questions or feedback, email <a style="color: #009dff;" href="mailto:lukebord@mit.edu">lukebord@mit.edu</a>. Enjoy! </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    {% endif %}
+    <div id="posts"  class="col-12 col-md-8">
+        <div class="infinite-container">
+        <!--
+        <div id="compose" class="box">
+            <form method="post" action="{% url 'submit-post' %}">
+             {% csrf_token %}
+                <div class="input-group">
+                    <textarea maxlength="5000" name='body' class="form-control custom-control autoExpand" id="compose-box" rows="1" required placeholder="Post to only your friends" style="resize:none"></textarea>
+                    <button class="input-group-addon btn btn-primary" type="submit" style="border-radius: 0px">post</button>
+                </div>
+            </form>
+        </div>
+        -->
+        {% include 'main/modules/posts.html' %}
+        </div>
+        {% if posts.has_next %}
+        <span class="d-none">   <a class="infinite-more-link" href="?page={{ posts.next_page_number }}">more</a></span>
+        {% endif %}
+        <div class="box loading" style="display:none">
+          Loading...
+        </div>
+    </div>
 
-	{% else %}
-	<div class="col-12">
-		<div class="box message">
-			Welcome to tag! Since you're not logged in, you can't see a personalized feed of anonymous posts. You can search for and look at groups without registering, but you cannot add friends or subscribe to groups. 
+    {% else %}
+    <div class="col-12">
+        <div class="box message">
+            Welcome to tag! Since you're not logged in, you can't see a personalized feed of anonymous posts. You can search for and look at groups without registering, but you cannot add friends or subscribe to groups. 
 
-			To have the best tag@mit experience, please log in with Facebook.
-		</div>
-	</div>
-		{% endif %}
+            To have the best tag@mit experience, please log in with Facebook.
+        </div>
+    </div>
+        {% endif %}
 {% endblock %}
-		
+        
 {% block sidebar %}
-	{% if user.is_authenticated %}
-		<div class="box">
-			<h1> Suggested Friends </h1>
-			<hr>
-			{% if suggested_friends|length == 0 %}
-			<div class="suggested-item">
-				Facebook friends on Tag will appear here.
-			</div>
-			{% endif %}
+    {% if user.is_authenticated %}
+        {% if user.friend_requests_received.all|length != 0 %}
+            <div class="box">
+                <h1> Friend Requests Received </h1>
+                <hr>
+                {% for friend_request in user.friend_requests_received.all %}
+                    <div class="suggested-item">
+                        <table width="100%">
+                            <tr>
+                                <td width="5%">
+                                    <a href="{% url 'user-profile' friend_request.pk %}">
+                                        <img src="{{ friend_request.avatar.url }}">
+                                    </a>
+                                </td>
+                                <td width="95%">
+                                    <a href="{% url 'user-profile' friend_request.pk %}">
+                                        {{ friend_request.first_name }} {{ friend_request.last_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <form class="btn-group float-right" role="form group" style="font-size: 5px; padding-right:0px" method="post" ic-post-to="{% url 'respond-request' friend_request.pk %}" ic-action="remove" ic-action-target="closest .suggested-item">
+                                        <button class="btn btn-outline-success btn-sm" name="accept" type="submit">Accept</button>
+                                        {% csrf_token %}
+                                        <button class="btn btn-outline-danger btn-sm" name="decline" type="submit">Decline</button>
+                                    </form>
+                                </td>
+                            </td>
+                        </table>
 
-			{% for friend in suggested_friends|shuffle|slice:"5" %}
-			<div class="suggested-item">
-				<table width="100%">
-					<tr>
-						<td width="5%">
-							<a href="{% url 'user-profile' friend.pk %}">
-								<img src="{{ friend.avatar.url }}">
-							</a>
-						</td>
-						<td width="95%">
-							<a href="{% url 'user-profile' friend.pk %}">
-								{{ friend.first_name }} {{ friend.last_name }}
-							</a>
-						</td>
-						<td>
-							<form class="float-right" role="form" style="font-size: 5px; padding-right:0px" method="post" action="{% url 'send-request' friend.pk %}">
-								{% csrf_token %}
-								<button class="float-right btn btn-outline-notifications btn-sm" type="submit">Send</button>
-							</form>
-						</td>
-					</td>
-				</table>
-			</div>
-			{% if not forloop.last %}
-				<hr>
-			{% endif %}
-			{% endfor %}
-		</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="box">
+            <h1> Suggested Friends </h1>
+            <hr>
+            {% if suggested_friends|length == 0 %}
+            <div class="suggested-item">
+                Suggested friends will appear here.
+            </div>
+            {% endif %}
 
-		<div class="box">
-			<h1> Suggested Groups </h1>
-			
-			<hr>
-			{% if suggested_groups.count == 0 %}
-			<div class="suggested-item">
-				Groups that your friends are in will appear here.
-			</div>
-			{% endif %}
-			{% for group in suggested_groups|shuffle|slice:"5" %}
-				<div class="suggested-item">
-					<table width="100%">
-						<tr>
-							<td width="5%">
-								<a href="{% url 'group' group.pk %}">
-									<img src="{{ group.photo.url }}">
-								</a>
-							</td>
-							<td width="90%">
-								<a href="{% url 'group' group.pk %}">
-									{{ group.name }}
-								</a>
-							</td>
-							<td>
-								<form class="btn-group float-right" role="group" method="post" action="{% url 'join-group' group.pk %}" style="font-size: 5px; padding-right:0px;">
-									{% csrf_token %}
-									<button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
-								</form>
-							</td>
-						</tr>
-					</table>
-				</div>
-				{% if not forloop.last %}
-					<hr>
-				{% endif %}
+            {% for friend in suggested_friends|shuffle|slice:"5" %}
+            <div class="suggested-item">
+                <table width="100%">
+                    <tr>
+                        <td width="5%">
+                            <a href="{% url 'user-profile' friend.pk %}">
+                                <img src="{{ friend.avatar.url }}">
+                            </a>
+                        </td>
+                        <td width="95%">
+                            <a href="{% url 'user-profile' friend.pk %}">
+                                {{ friend.first_name }} {{ friend.last_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <form class="float-right" role="form" style="font-size: 5px; padding-right:0px" method="post" ic-post-to="{% url 'send-request' friend.pk %}" ic-action="remove" ic-action-target="closest .suggested-item">
+                                {% csrf_token %}
+                                <button class="float-right btn btn-outline-notifications btn-sm" type="submit">Send</button>
+                            </form>
+                        </td>
+                    </td>
+                </table>
+            </div>
+            {% if not forloop.last %}
+                <hr>
+            {% endif %}
+            {% endfor %}
+        </div>
 
-			{% endfor %}
-		</div>
-	{% endif %}
+        <div class="box">
+            <h1> Suggested Groups </h1>
+
+            <hr>
+            {% if suggested_groups.count == 0 %}
+            <div class="suggested-item">
+                Groups that your friends are in will appear here.
+            </div>
+            {% endif %}
+            {% for group in suggested_groups|shuffle|slice:"5" %}
+                <div class="suggested-item">
+                    <table width="100%">
+                        <tr>
+                            <td width="5%">
+                                <a href="{% url 'group' group.pk %}">
+                                    <img src="{{ group.photo.url }}">
+                                </a>
+                            </td>
+                            <td width="90%">
+                                <a href="{% url 'group' group.pk %}">
+                                    {{ group.name }}
+                                </a>
+                            </td>
+                            <td>
+                                <form class="btn-group float-right" role="group" method="post" action="{% url 'join-group' group.pk %}" style="font-size: 5px; padding-right:0px;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-notifications btn-sm" type="submit">Join</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                {% if not forloop.last %}
+                    <hr>
+                {% endif %}
+
+            {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block modals %}
-	{% if user.is_authenticated %}
-		{% include 'main/modules/tag_modal.html' %}
-	{% endif %}
+    {% if user.is_authenticated %}
+        {% include 'main/modules/tag_modal.html' %}
+        {% include 'main/modules/reply_modal.html' %}
+    {% endif %}
 {% endblock %}
 
 {% block javascript %}
-	{% if user.is_authenticated and not user.is_anonymous %}
-	<script src="{% static 'js/csrftoken.js' %}"></script>
-	<script>
-		{% include 'main/modules/like_and_tag.js' %}
-	</script>
-	{% endif %}
-	<script>
-	var infinite = new Waypoint.Infinite({
-		element: $('.infinite-container')[0],
-			context: $('body'),
-			onBeforePageLoad: function () {
-				$('.loading').show();
-			},
-			onAfterPageLoad: function ($items) {
-				$('.loading').hide();
-			}
-		});
-	</script>
+    {% if user.is_authenticated and not user.is_anonymous %}
+    <script src="{% static 'js/csrftoken.js' %}"></script>
+    <script>
+      {% include 'main/modules/urls.js' %}
+    </script>
+    <script src="{% static 'js/post_functions.js' %}"></script>
+    {% endif %}
+    <script src="{% static 'js/infinite_constructor.js' %}"></script>
+    {% if new %}
+    <script>
+    $(window).on('load',function(){
+        $('#new-user-modal').modal('show');
+    });
+    </script>
+    {% endif %}
 {% endblock %}
