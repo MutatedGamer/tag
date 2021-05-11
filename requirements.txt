@@ -12,7 +12,7 @@ chardet==3.0.4
 colorama==0.3.9
 cryptography==3.2
 defusedxml==0.5.0
-Django==2.2.13
+Django==2.2.20
 django-announce==0.1.5
 django-bleach==0.3.0
 django-storages==1.7.1
